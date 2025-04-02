@@ -1,0 +1,115 @@
+﻿@model Groovy.ViewModels.SongDetailsViewModel;
+
+@{
+    ViewData["Title"] = $"{Model.CurrentSong.Title}"; 
+    bool isGuest = Context.Session.GetString("Username") == "Гост";
+
+    string GetBackgroundGenreColor(string mainColor)
+    {
+        mainColor += "cc";
+        return mainColor;
+    }
+}
+
+<style>
+    /* Top Section Background */
+    .song-background {
+        background-color: @GetBackgroundGenreColor(Model.CurrentSong.Color);
+        height: 50vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    /* Song & Waveform Section */
+    .song-container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+    }
+
+    /* Waveform Placeholder */
+    .waveform-container {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100px;
+    }
+
+    /* Song Info */
+    .song-info {
+        text-align: center;
+        color: white;
+    }
+
+    .song-info img {
+        width: 150px;
+        height: 150px;
+        border-radius: 10px;
+        object-fit: cover;
+        margin-bottom: 10px;
+    }
+
+    .play-button {
+        margin-top: 10px;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .song-background {
+            height: 60vh;
+            flex-direction: column;
+        }
+
+        .waveform-container {
+            margin-bottom: 15px;
+        }
+    }
+</style>
+
+<div class="container-fluid p-0">
+    <div class="song-background d-flex flex-column flex-md-row align-items-center justify-content-center">
+        <div class="song-container d-flex flex-column flex-md-row align-items-center justify-content-around w-100">
+            <div class="waveform-container col-md-6 p-3">
+                <canvas id="waveformCanvas" width="300" height="100"></canvas>
+            </div>
+
+            <div class="song-info col-md-6 text-center">
+                <img src="@Model.CurrentSong?.CoverUrl" alt="Song Cover">
+                <h1 class="h3 fw-bold">@Model.CurrentSong?.Title</h1>
+                <button onclick="setAudioSource('@Model.CurrentSong.SongUrl', '@Model.CurrentSong.CoverUrl', '@Model.CurrentSong.Title', '@Model.CurrentSong.Color')" class="btn btn-orange mt-1"><i class="fa-solid fa-play"></i></button>
+
+                @if (!isGuest)
+                {
+                    bool isFavourite = Model.FavouriteSongIds.Contains(Model.CurrentSong.Id);
+
+                    <button class="btn text-light bg-hover-light mt-1" data-song-id="@Model.CurrentSong.Id" data-user-id="@Model.UserId" onclick="toggleFavourite(this)">
+                        <i class='@(isFavourite ? "fa-solid fa-heart-circle-minus" : "fa-regular fa-heart")'></i>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h2 class="h5 fw-bold">Още от този изпълнител</h2>
+                @Html.Partial("_EntityList", Model.RelatedSongs)
+            </div>
+
+            <div class="col-md-6">
+                <h2 class="h5 fw-bold">Препоръчано за вас</h2>
+                @Html.Partial("_EntityList", Model.RecommendedSongs)
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+</script>

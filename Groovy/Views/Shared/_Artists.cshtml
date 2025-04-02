@@ -1,0 +1,568 @@
+﻿@model Groovy.ViewModels.IndexViewModel;
+@{
+    bool isAdmin = ViewBag.Username == "admin";
+}
+
+<style>
+    .artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    }
+
+    .artist-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5em;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, filter 0.3s ease-in;
+    background-color: #6c757d;
+    max-width: 150px;
+    max-height: 150px;
+    opacity: 0;
+    animation-name: fadeIn;
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
+    }
+
+    .artist-item:hover {
+    transform: scale(1.1);
+    filter: brightness(0.8);
+    }
+
+    .artist-item img {
+    width: 92.5%;
+    height: 92.5%;
+    border-radius: 0.5em;
+    display: block;
+    transition: filter 0.3s ease-in-out;
+    }
+
+    .gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-color);
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    }
+
+    .artist-item:hover .gradient-overlay, .artist-item:hover .artist-name {
+    opacity: 0.3;
+    }
+
+    .artist-item:hover img {
+    filter: brightness(0.4);
+    }
+
+    .artist-name {
+    position: absolute;
+    bottom: 4%;
+    width: 92.5%;
+    padding: 0.3em 1.5em;
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 0.5em;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    }
+
+    .buttons {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2;
+    }
+
+    .artist-item:hover .buttons {
+    opacity: 1;
+    }
+
+    .view-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 2rem;
+    transition: color 0.2s;
+    }
+
+    .edit-btn {
+    position: absolute;
+    top: 2%;
+    left: 2%;
+    border: none;
+    background: none !important;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: color 0.2s;
+    }
+
+    .delete-btn {
+    position: absolute;
+    top: 2%;
+    right: 2%;
+    border: none;
+    background: none !important;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: color 0.2s;
+    }
+
+    .add-artist-btn:hover, .add-artist-btn:focus {
+    background-color: #6c757d !important;
+    transform: scale(1.1);
+    filter: brightness(1) !important;
+    }
+
+    .artist-item:has(.add-artist-btn):hover img, .artist-item:has(.add-artist-btn):focus img {
+    filter: brightness(1);
+    }
+</style>
+
+<h3 class="mb-4 text-dark">Изпълнители</h3>
+
+<div class="artist-grid mt-5">
+    @if (isAdmin)
+    {
+        <div class="artist-item">
+            <button type="button" class="btn btn-secondary add-artist-btn d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#createArtistModal">
+                <img src="~/media/add_button.jpg" alt="admin add artist button" width="150" height="150" />
+            </button>
+        </div>
+    }
+
+    @{
+        int delayIncrementor = 0;
+    }
+    @foreach (var artist in Model.Artists)
+    {
+        double delay = 0.05 * delayIncrementor++;
+        string delayString = delay.ToString(System.Globalization.CultureInfo.InvariantCulture) + "s";
+
+        <div class="artist-item" style="--gradient-color: linear-gradient(45deg, @artist.Color 30%, transparent); animation-delay: @delayString;">
+            <img src="@artist.ImageUrl" alt="@artist.Name Photo" width="150" height="150"/>
+            <div class="gradient-overlay"></div>
+
+            <div class="buttons">
+                <a class="view-btn text-light" asp-controller="Song" asp-action="SongDetails" asp-route-id="@artist.Id"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></a>
+                @if (isAdmin)
+                {
+                    <button type="button" class="btn edit-btn text-light" data-bs-toggle="modal" data-bs-target="#editArtistModal" data-artist='@Html.Raw(Json.Serialize(artist))' data-genres='@Html.Raw(Json.Serialize(Model.ArtistGenreRelations))'><i class="fa-solid fa-pencil"></i></button>
+                    <button type="button" class="btn delete-btn text-light" data-bs-toggle="modal" data-bs-target="#deleteArtistModal" data-artist-name="@artist.Name" data-artist-id="@artist.Id"><i class="fa-solid fa-trash"></i></button>
+                }
+            </div>
+
+            <div class="artist-name">
+                <h4 class="text-light fs-6 m-0">@artist.Name</h4>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createArtistModal" tabindex="-1" role="dialog" aria-labelledby="createArtistModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createArtistModalLabel">Добави изпълнител</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="uploadArtistForm" asp-action="UploadArtist" asp-controller="Upload" method="post" enctype="multipart/form-data">
+                    <div class="w-50 form-group mb-2">
+                        <label class="form-label text-muted" for="name">Име</label>
+                        <input class="form-control" type="text" value="" id="name" name="name"/>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label text-muted" for="color">Цвят</label>
+                        <input class="form-control" type="color" value="" id="color" name="color"/>
+                    </div>
+
+                    <div class="form-group mb-2 genre-container">
+                        <label class="form-label text-muted">Жанрове</label>
+                        @foreach (var genre in Model.Genres)
+                        {
+                            <div class="form-group d-flex align-items-center gap-2">
+                                <input class="form-check m-0 rounded-3" type="checkbox" id="@genre.Name" name="genre" value="@genre.Id" />
+                                <label class="form-label text-muted m-0" for="@genre.Name">@genre.Name</label>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label text-muted" for="artistImageFile">Снимка</label>
+                        <input class="form-control" type="file" name="artistImageFile" id="artistImageFile" accept="image/webp"/>
+                    </div>
+
+                    <div>
+                        <img class="mw-100" id="artistImageToCrop" src="" alt="" />
+                    </div>
+                </form>
+
+                <div class="alert alert-danger m-0 p-2 error-message" style="display: none"></div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <button type="button" class="btn btn-orange" id="submitArtist">Запази</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editArtistModal" tabindex="-1" role="dialog" aria-labelledby="editArtistModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editArtistModalLabel">Редактирай изпълнител</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="updateArtistForm" asp-action="UpdateArtist" asp-controller="Update" method="post" enctype="multipart/form-data">
+                    <div class="w-50 form-group mb-2">
+                        <label class="form-label text-muted" for="name">Име</label>
+                        <input class="form-control" type="text" value="" id="name" name="name" />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label text-muted" for="color">Цвят</label>
+                        <input class="form-control" type="color" value="" id="color" name="color" />
+                    </div>
+
+                    <div class="form-group mb-2 genre-container">
+                        <label class="form-label text-muted">Жанрове</label>
+                        @foreach (var genre in Model.Genres)
+                        {
+                            <div class="form-group d-flex align-items-center gap-2">
+                                <input class="form-check m-0 rounded-3" type="checkbox" id="@genre.Name" name="genre" value="@genre.Id"/>
+                                <label class="form-label text-muted m-0" for="@genre.Name">@genre.Name</label>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label text-muted" for="artistImageFileEdit">Снимка</label>
+                        <input class="form-control" type="file" name="artistImageFileEdit" id="artistImageFileEdit" accept="image/webp" />
+                    </div>
+
+                    <div>
+                        <img class="mw-100" id="artistImageToCropEdit" src="" alt="" />
+                    </div>
+                </form>
+
+                <div class="alert alert-danger m-0 p-2 error-message" style="display: none"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <button type="button" class="btn btn-orange" id="submitEditArtist">Запази</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteArtistModal" tabindex="-1" role="dialog" aria-labelledby="deleteArtistModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteArtistModalLabel">Премахни изпълнител <span class="text-orange artist-name-placeholder"></span></h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <h6 class="text-dark fw-bolder">Сигурен/а ли сте, че искате да изтриете изпълнител <span class="text-orange artist-name-placeholder"></span>?</h6>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <button type="button" class="btn btn-danger" id="submitDeleteArtist">Изтрий</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Create and edit modal cropper
+    document.getElementById("artistImageFile").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        const artistImageToCrop = document.getElementById("artistImageToCrop");
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                artistImageToCrop.src = e.target.result;
+
+                artistImageToCrop.onload = () => {
+                    if (cropper) {
+                        cropper.destroy();
+                    };
+
+                    cropper = new Cropper(artistImageToCrop, {
+                        aspectRatio: 1,
+                        viewMode: 1
+                    });
+                };
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById("artistImageFileEdit").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        const artistImageToCrop = document.getElementById("artistImageToCropEdit");
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                artistImageToCrop.src = e.target.result;
+
+                artistImageToCrop.onload = () => {
+                    if (cropper) {
+                        cropper.destroy();
+                    };
+
+                    cropper = new Cropper(artistImageToCrop, {
+                        aspectRatio: 1,
+                        viewMode: 1
+                    });
+                };
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Submit artist
+    document.getElementById("submitArtist").addEventListener("click", () => {
+        hideError();
+
+        const form = document.getElementById("uploadArtistForm");
+
+        // Validate
+        const nameInput = document.getElementById("name");
+        const checkboxes = form.querySelectorAll("input[type='checkbox']");
+        const originalFile = document.getElementById("artistImageFile").files[0];
+
+        if (!nameInput.value.trim()) {
+            showError("Моля въведете име на изпълнител!");
+            return;
+        }
+        if (!Array.from(checkboxes).some(checkbox => checkbox.checked)) {
+            showError("Моля изберете поне един жанр!");
+            return;
+        }
+        if (!originalFile) {
+            showError("Моля изберете снимка!");
+            return;
+        }
+
+
+        if (cropper) {
+            showLoadingScreen();
+
+            cropper.getCroppedCanvas().toBlob((blob) => {
+                if (!blob) {
+                    showError("Възникна грешка при изрязването на снимката!");
+                    return;
+                }
+
+                // Execute request
+                const checkedGenres = [...form.querySelectorAll('input[name="genre"]:checked')].map(input => input.value);
+                const originalFileName = originalFile.name;
+                const formData = new FormData(form);
+                formData.append("croppedImage", blob, originalFileName);
+                formData.append("genres", JSON.stringify(checkedGenres));
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    hideError();
+
+                    const createArtistModalElem = document.getElementById('createArtistModal');
+                    const createArtistModal = bootstrap.Modal.getInstance(createArtistModalElem);
+                    createArtistModal.hide();
+
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    hideLoadingScreen();
+                });
+            });
+        }
+    });
+
+    // Submit edit artist
+    var editArtistModalElem = document.getElementById("editArtistModal");
+    editArtistModalElem.addEventListener("show.bs.modal", (event) => {
+        hideError();
+
+        // Get info
+        var button = event.relatedTarget;
+        var artist = JSON.parse(button.getAttribute("data-artist"));
+        var genres = JSON.parse(button.getAttribute("data-genres"))[artist.id];
+
+        // Get inputs
+        const nameInput = editArtistModalElem.querySelector("#name");
+        const colorInput = editArtistModalElem.querySelector("#color");
+        const imagePreview = editArtistModalElem.querySelector("#artistImageToCropEdit");
+        const genreCheckboxes = editArtistModalElem.querySelectorAll("[type=checkbox]");
+
+        // Set input values
+        nameInput.value = artist.name;
+        colorInput.value = artist.color;
+        imagePreview.src = artist.imageUrl;
+        genreCheckboxes.forEach(g => {
+            g.checked = genres.indexOf(parseInt(g.value)) != -1;
+        });
+
+        // Add request sending functionality
+        const editButton = document.getElementById("submitEditArtist");
+        editButton.removeEventListener("click", handleArtistEdit, { once: true });
+        editButton.addEventListener("click", handleArtistEdit, { once: true });
+
+        function handleArtistEdit() {
+            // Validate
+            if (!nameInput.value.trim()) {
+                showError("Моля въведете име на изпълнител!");
+                return;
+            }
+            if (!Array.from(genreCheckboxes).some(checkbox => checkbox.checked)) {
+                showError("Моля изберете поне един жанр!");
+                return;
+            }
+
+            showLoadingScreen();
+
+            const checkedGenres = [...editArtistModalElem.querySelectorAll('input[name="genre"]:checked')].map(input => input.value);
+            const originalFile = document.getElementById("artistImageFileEdit").files[0];
+
+            const formData = new FormData();
+            formData.append("artistId", artist.id);
+            formData.append("name", nameInput.value);
+            formData.append("imageUrl", artist.imageUrl);
+            formData.append("color", colorInput.value);
+            formData.append("genres", JSON.stringify(checkedGenres));
+
+            if (originalFile) {
+                if (cropper) {
+                    cropper.getCroppedCanvas().toBlob((blob) => {
+                        if (!blob) {
+                            showError("Възникна грешка при изрязването на снимката!");
+                            return;
+                        }
+                        
+                        formData.append("croppedImage", blob, originalFile.name);
+                        
+                        sendRequest();
+                    });
+                }
+            }
+            else {
+                formData.append("croppedImage", new Blob(), "");
+                sendRequest();
+            }
+
+            function sendRequest() {
+                fetch("Update/UpdateArtist", {
+                    method: 'PUT',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Server response:", data);
+
+                    const editModal = bootstrap.Modal.getInstance(editArtistModalElem);
+                    editModal.hide();
+
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    hideLoadingScreen();
+                });
+            }
+        }
+    });
+
+    // Submit delete artist
+    document.getElementById("deleteArtistModal").addEventListener("show.bs.modal", (event) => {
+        var button = event.relatedTarget;
+        var artistId = button.getAttribute("data-artist-id");
+        var artistName = button.getAttribute("data-artist-name");
+
+        document.querySelectorAll(".artist-name-placeholder").forEach(elem => elem.textContent = artistName);
+
+        const formData = new FormData();
+        formData.append("artistId", artistId);
+
+        const deleteButton = document.getElementById("submitDeleteArtist");
+        deleteButton.removeEventListener("click", handleArtistDelete, { once: true });
+        deleteButton.addEventListener("click", handleArtistDelete, { once: true });
+
+        function handleArtistDelete() {
+            showLoadingScreen();
+
+            fetch("Delete/DeleteArtist", {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Server response:", data);
+
+                const deleteModalElem = document.getElementById('deleteArtistModal');
+                const deleteModal = bootstrap.Modal.getInstance(deleteModalElem);
+                deleteModal.hide();
+
+                location.reload();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                hideLoadingScreen();
+            });
+        }
+    });
+
+    // Error message
+    function showError(message) {
+        const errorElem = document.querySelectorAll(".error-message");
+        errorElem.forEach(elem => {
+            elem.style.display = "block";
+            elem.innerText = message;
+        });
+    }
+    function hideError() {
+        const errorElem = document.querySelectorAll(".error-message");
+        errorElem.forEach(elem => {
+            elem.style.display = "none";
+        });
+    }
+</script>

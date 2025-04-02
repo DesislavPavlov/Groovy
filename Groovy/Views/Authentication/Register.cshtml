@@ -1,0 +1,60 @@
+﻿@model Groovy.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Регистрация";
+    var errorMessage = ViewBag.Error as string;
+}
+
+<div class="d-flex justify-content-evenly align-items-center vh-100">
+    <div class="w-100" id="imageContainer">
+        <img src="~/media/groovy logo.png" alt="placeholder" class="w-75" />
+    </div>
+
+    <div class="w-100 d-flex gap-4 align-items-center flex-column bg-light p-5 pt-4 rounded-3 shadow" id="formContainer">
+        <div>
+            <h2 class="border-bottom-2 border-orange pb-2 text-dark">Регистрирайте се!</h2>
+            <p class="opacity-50 m-0"><a class="text-blue text-decoration-none transition rounded-3" asp-action="Login" onclick="showLoadingScreen()">вече имам профил</a></p>
+            <p class="opacity-50 m-0"><a class="text-blue text-decoration-none transition rounded-3" asp-action="HandleGuestLogin" onclick="showLoadingScreen()">влез като гост</a></p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger m-0 p-2">@errorMessage</div>
+        }
+
+        <form class="d-flex gap-3 flex-column" method="post" asp-action="HandleUserRegister">
+            <div class="form-group">
+                <label class="mb-1 text-muted" for="username">Потребителско име:</label>
+                <input type="text" value="@Model.Username" id="username" name="username" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label class="mb-1 text-muted" for="email">Е-поща:</label>
+                <input type="email" value="@Model.Email" id="email" name="email" class="form-control" required />
+            </div>
+
+            <div class="form-group text-muted">
+                <label class="mb-1" for="password">Парола:</label>
+                <input type="password" value="@Model.Password" id="password" name="password" class="form-control" minlength="8" required />
+            </div>
+
+            <div class="form-group text-muted">
+                <label class="mb-1" for="confirmPassword">Потвърди парола:</label>
+                <input type="password" value="@Model.ConfirmPassword" id="confirmPassword" name="confirmPassword" class="form-control" minlength="8" required />
+            </div>
+
+            <label class="text-muted">Иконка:</label>
+            <div class="form-group d-flex justify-content-evenly avatar-container">
+                @foreach (var keyValuePair in Model.AvatarBlobUrls)
+                {
+                    <label class="position-relative avatar-label d-flex justify-content-center">
+                        <input type="radio" name="AvatarUrl" value="@keyValuePair.Value" class="form-control position-absolute top-0 w-0 h-0 opacity-0 rounded-3" />
+                        <img src="@keyValuePair.Value" alt="@keyValuePair.Key" class="pointer-events-none rounded-3 position-relative w-75 transition" />
+                    </label>
+                }
+            </div>
+
+            <button type="submit" class="btn btn-orange" onsubmit="showLoadingScreen()">Регистрация</button>
+        </form>
+    </div>
+</div>

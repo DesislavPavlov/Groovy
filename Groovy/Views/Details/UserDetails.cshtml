@@ -1,0 +1,68 @@
+﻿@model Groovy.ViewModels.UserDetailsViewModel;
+
+@{
+    ViewData["Title"] = $"{Model.Username}";
+    bool isGuest = Model.Username == "Гост";
+    bool isAdmin = Model.Username == "admin";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <img src="@Model.AvatarUrl" class="rounded-circle me-3" alt="User Avatar" width="80" height="80">
+                <div>
+                    <h2 class="text-orange">@Model.Username</h2>
+                    <p class="text-muted">@Model.Email</p>
+                </div>
+            </div>
+            <div>
+                <p class="text-muted">Присъединен на <b>@Model.CreatedAt.ToString("MMMM dd, yyyy")</b></p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h4 class="text-orange">Често слушате 🎤:</h4>
+                @Html.Partial("_EntityList", Model.FavouriteArtists)
+            </div>
+            <div class="col-md-4 mb-4">
+                <h4 class="text-orange">Любими жанрове 🎶:</h4>
+                @Html.Partial("_EntityList", Model.FavouriteGenres)
+            </div>
+            <div class="col-md-4 mb-4">
+                <h4 class="text-orange">Вашите фаворити 💖:</h4>
+                @Html.Partial("_EntityList", Model.FavouriteSongs)
+            </div>
+        </div>
+
+        @if (!isGuest && !isAdmin)
+        {
+            <div class="text-center mt-4">
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal">Премахни профил</button>
+            </div>
+        }
+    </div>
+</div>
+
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteUserModalLabel">Премахване на профил <b class="text-orange">перманентно</b></h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <h6 class="text-dark fw-bolder">Сигурен/а ли сте, че искате да <b class="text-danger">премахнете</b> своя профил <b class="text-orange">завинаги</b>?</h6>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <a asp-controller="Delete" asp-action="DeleteUser" asp-route-id="@Model.Id" class="btn btn-danger">Изтрий</a>
+            </div>
+        </div>
+    </div>
+</div>

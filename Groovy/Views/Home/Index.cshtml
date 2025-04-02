@@ -1,0 +1,225 @@
+﻿@using System.Data;
+@using Groovy.ViewModels;
+@using System.Text.Json;
+@model IndexViewModel
+
+@{
+    ViewData["Title"] = "Начало";
+    bool isGuest = Model.Username == "Гост";
+}
+
+
+<!-- Cropper CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+
+<style>
+    .buttons {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2;
+    }
+
+    .play-btn:active, .view-btn:active, .edit-btn:active, .delete-btn:active {
+    color: #b05f1c !important;
+    /* transform: scale(0.95); */
+    }
+
+    /* Cropper */
+    /* Change the crop box border color */
+    .cropper-view-box {
+    outline: 2px solid #e38e49 !important; /* Change to your desired color */
+    }
+
+    /* Crop area */
+    .cropper-dashed {
+    border-color: #e38e49 !important;
+    }
+
+    /* Drag handles */
+    .cropper-line,
+    .cropper-point {
+    background-color: #e38e49 !important;
+    }
+
+    /* Shading outside */
+    .cropper-modal {
+    background-color: #61330c !important;
+    }
+
+    /* Top trending */
+    /* Layout & Scaling */
+    .trending-container {
+    width: 100%;
+    height: 40vh;
+    gap: 10px;
+    background: #e38e49cc;
+    box-shadow: 0 0 0px 20px #e38e49cc;
+    }
+
+    .trending-item {
+    position: relative;
+    transition: transform 0.4s ease, opacity 0.3s ease;
+    }
+
+    /* Progressive Scaling */
+    .size-1 {
+    width: 100px;
+    height: 150px;
+    }
+
+    .size-2 {
+    width: 140px;
+    height: 200px;
+    }
+
+    .size-3 {
+    width: 180px;
+    height: 250px;
+    }
+    /* Middle Song (Largest) */
+
+    /* Hover Effect */
+    .trending-item:hover {
+    transform: translateY(-10px);
+    cursor: pointer;
+    }
+
+    /* Song Title with Underline */
+    .top-song-title {
+    position: relative;
+    display: inline-block;
+    font-size: 1rem;
+    color: white;
+    }
+
+    .top-song-title::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 3px;
+    background: white;
+    transition: width 0.3s ease;
+    margin: auto;
+    }
+
+    .trending-item:hover .top-song-title::after {
+    width: 100%;
+    }
+
+    /* Overlay */
+    .overlay {
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    }
+
+    .trending-item:hover .overlay {
+    opacity: 1;
+    }
+
+    /* Responsive Scaling */
+    @@media (max-width: 768px) {
+    .size-1
+    {
+    width: 80px;
+    height: 120px;
+    }
+
+    .size-2 {
+    width: 110px;
+    height: 160px;
+    }
+
+    .size-3 {
+    width: 140px;
+    height: 200px;
+    }
+
+    }
+</style>
+
+<h2 class="mt-4 text-center text-dark fst-italic">Добре дошъл, <span class="text-orange">@Model.Username</span>!</h2>
+
+<div class="container my-5">
+    <h2 class="text-center fw-bold mb-5">🔥 Нашите любими</h2>
+
+    <div class="d-flex justify-content-center align-items-end trending-container">
+        @for (int i = 0; i < Model.TopSongs.Count; i++)
+        {
+            int sizeClass = i == 2 ? 3 : (i == 1 || i == 3 ? 2 : 1);
+            <div class="trending-item size-@sizeClass">
+                <div class="shadow-lg position-relative">
+                    <img src="@Model.TopSongs[i].CoverUrl" class="card-img-top rounded border-light border-2 border" alt="Trending Song">
+
+                    <div class="overlay position-absolute bottom-0 w-100 text-center p-2">
+                        <h5 class="fw-bold top-song-title">@Model.TopSongs[i].Title</h5>
+                    </div>
+
+                    @* <button class="play-btn text-light" onclick="setAudioSource('@song.SongUrl', '@song.CoverUrl', '@song.Title', '@song.Color')"><i class="fa-regular fa-circle-play"></i></button> *@
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<section class="w-75 mx-auto my-5">
+    <div class="btn-group custom-btn-group mb-5" role="group">
+        <button class="btn btn-primary load-view text-dark fw-bold" data-view="_RecommendedSongs" data-model="@Model">Музика</button>
+        <button class="btn btn-primary load-view text-dark fw-bold" data-view="_Artists" data-model="@Model">Изпълнители</button>
+        <button class="btn btn-primary load-view text-dark fw-bold" data-view="_Genres" data-model="@Model">Жанрове</button>
+    </div>
+
+    <div id="contentContainer"></div>
+</section>
+
+<!-- Cropper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<!-- JQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Cropper init
+    let cropper;
+
+    // Ajax partial view rendering
+    $(document).ready(function () {
+        $(".load-view").click(function () {
+            var buttonGroup = $(this).parent();
+            buttonGroup.find(".load-view").removeClass("selected");
+            $(this).addClass("selected");
+            
+            var viewName = $(this).data("view");
+            var model = @Html.Raw(JsonSerializer.Serialize(Model, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+
+            var requestData = {
+                viewName: viewName,
+                indexViewModel: model
+            };
+
+            $.ajax({
+                url: "/Home/LoadView",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(requestData),
+                success: function (result) {
+                    $("#contentContainer").html(result);
+                },
+                error: function () {
+                    $("#contentContainer").html("<p>Error loading content.</p>");
+                }
+            });
+        });
+
+        $(".load-view").first().click();
+    });
+
+</script>

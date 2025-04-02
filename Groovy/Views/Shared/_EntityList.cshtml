@@ -1,0 +1,64 @@
+﻿@model IEnumerable<dynamic>
+
+<style>
+    .list-group img {
+        width: 50px;
+        height: 50px;
+        border-radius: 5px;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+
+    .list-group a {
+        transition: transform 0.3s, color 0.3s;
+        text-decoration: none;
+    }
+
+    .list-group li a:hover, .list-group li a:hover img {
+        transform: scale(1.025);
+        color: #e38e49 !important;
+    }
+
+    .genre-circle {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: var(--genre-color);
+    }
+</style>
+
+@if (Model.Any())
+{
+    <ul class="list-group">
+        @foreach (var item in Model)
+        {
+            <li class="list-group-item">
+                @if (item is Song song)
+                {
+                    <a asp-controller="Details" asp-action="SongDetails" asp-route-id="@song.Id" class="text-dark d-flex align-items-center">
+                        <img src="@song.CoverUrl" alt="cover image of @song.Title" class="me-3">
+                        <p class="d-inline m-0">@song.Title</p>
+                    </a>
+               }
+                else if (item is Artist artist)
+                {
+                    <a asp-controller="Details" asp-action="ArtistDetails" asp-route-id="@artist.Id" class="text-dark d-flex align-items-center">
+                        <img src="@artist.ImageUrl" alt="image of @artist.Name" class="me-3">
+                        <p class="d-inline m-0">@artist.Name</p>
+                    </a>
+                }
+                else if (item is Genre genre)
+                {
+                    <a asp-controller="Details" asp-action="GenreDetails" asp-route-id="@genre.Id" class="text-dark d-flex align-items-center" style="--genre-color: @genre.Color;">
+                        <div class="genre-circle"></div>
+                        <p class="m-0 ms-3">@genre.Name</p>
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">Списъкът е празен 💔</p>
+}

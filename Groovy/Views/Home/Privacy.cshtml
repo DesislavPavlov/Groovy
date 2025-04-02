@@ -1,0 +1,17 @@
+﻿@model System.Data.DataTable;
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+<h1>Nigga</h1>
+
+<table>
+    <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+    @foreach (System.Data.DataRow row in Model.Rows)
+    {
+        <tr>
+            <td>@row["user_id"]</td>
+            <td>@row["username"]</td>
+            <td>@row["email"]</td>
+        </tr>
+    }
+</table>

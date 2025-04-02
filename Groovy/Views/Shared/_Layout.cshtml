@@ -1,0 +1,409 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Groovy</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Groovy.styles.css" asp-append-version="true" />
+    <script src="https://kit.fontawesome.com/88959bd2cd.js" crossorigin="anonymous"></script>
+
+    <style>
+        
+    /* Audio miniplayer css */
+        .mini-player {
+        background-color: rgb(248,249,250);
+        box-shadow: 0px -4px 10px 2px #e38e4978 inset, 0px -5px 10px 2px #e38e4924;
+        animation: fadeIn 0.2s;
+        }
+
+        .hidden {
+        display: none !important;
+        }
+
+        .track-info img{
+        border: 3px solid var(--color);
+        border-radius: 0.7em;
+        }
+
+        #seekBar {
+        width: 250px;
+        }
+
+        #volumeSlider {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 100px;
+        writing-mode: vertical-lr;
+        direction: rtl;
+        cursor: pointer;
+        animation: fadeIn 0.2s;
+        display: none;
+        }
+
+        #volumeSlider::-webkit-slider-runnable-track, #volumeSlider:-moz-range-track {
+        background: #e38e49;
+        }
+
+        #volumeSlider::-webkit-slider-thumb, #volumeSlider:-moz-range-thumb {
+        appearance: none;
+        width: 10px;
+        height: 10px;
+        background: #e38e49;
+        border-radius: 50%;
+        cursor: pointer;
+        margin-top: -3px; 
+        }
+
+        .volume-control:hover #volumeSlider {
+        display: block;
+        }
+
+        #miniPlayer i {
+        transition: color 0.2s;
+        }
+
+        #miniPlayer i:hover, #miniPlayer i:focus, #miniPlayer button:hover, #miniPlayer button:focus {
+        color: #e38e49;
+        }
+
+        .close-container .btn-close {
+        top: 1em;
+        right: 1em;
+        }
+
+        @@media (max-width: 768px) {
+        .mini-player {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+        }
+
+        .track-info {
+        gap: 1em !important;
+        }
+
+        .track-info img {
+        width: 60px;
+        height: 60px;
+        }
+
+        #seekBar {
+        width: 200px;
+        }
+
+        #volumeSlider {
+        height: 80px;
+        width: 4px;
+        }
+        }
+
+        @@media (max-width: 480px) {
+        #seekBar {
+        width: 150px;
+        }
+
+        .track-info {
+        gap: 0.5em !important;
+        }
+
+        .track-info span {
+        font-size: 1rem;
+        }
+
+        .track-info img {
+        width: 50px;
+        height: 50px;
+        }
+
+        #volumeSlider {
+        height: 70px;
+        width: 3px;
+        }
+        }
+
+        /* Account Details */
+        #accountContainer {
+            position: absolute;
+            top: 1em;
+            right: 1em;
+            transition: background-color 0.3s;
+        }
+
+        #accountContainer img {
+            border: 2px solid rgb(248, 249, 250);
+            border-radius: 100%;
+        }
+
+        #accountContainer:hover {
+            background-color: rgb(248, 249, 250);
+        }
+
+        #accountContainer:hover p {
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+        var onLoginOrRegister = (currentController == "Authentication" && (currentAction == "Login" || currentAction == "Register"));
+
+        string userIdString = Context.Session.GetString("UserId");
+        int userId = 37; // Default to guest
+        if (!string.IsNullOrEmpty(userIdString))
+        {
+            userId = int.Parse(Context.Session.GetString("UserId"));
+        }
+        string username = Context.Session.GetString("Username");
+        string avatarUrl = Context.Session.GetString("AvatarUrl");
+        bool isGuest = username == "Гост";
+    }
+
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        @if (!onLoginOrRegister)
+        {
+            <div class="d-flex justify-content-center border-bottom box-shadow mb-3 bg-orange p-2 position-relative">
+                <a asp-controller="Authentication" asp-action="Login" class="position-absolute top-50 start-0 mx-3 px-2 translate-middle-y text-light transition-color fs-5 bg-hover-light rounded-1">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+                <a asp-controller="Home" asp-action="Index">
+                    <img src="~/media/groovy logo.png" alt="Groovy logo" width="125px" height="50px" />
+                </a>
+                <div id="accountContainer" class="rounded-1">
+                    @if (isGuest)
+                    {
+                        <div class="ps-3 pe-1 d-flex justify-content-center align-items-center gap-3 text-orange text-decoration-none bg-light rounded-1">
+                            <p class="m-0">@username</p>
+                            <img src="@avatarUrl" alt="Profile picture" width="35px" height="35px" />
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-action="UserDetails" asp-controller="Details" asp-route-id="@userId" class="ps-3 pe-1 d-flex justify-content-center align-items-center gap-3 text-orange text-decoration-none">
+                            <p class="m-0 opacity-0 transition">@username</p>
+                            <img src="@avatarUrl" alt="Profile picture" width="35px" height="35px" />
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </header>
+
+    <div class="container">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+
+    <!-- Favourite Message Box (Bootstrap Toast) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="favToast" class="toast align-items-center text-white bg-orange border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <span id="favToastMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    @if (!onLoginOrRegister)
+    {
+        <footer class="footer position-sticky">
+            <div id="miniPlayer" class="mini-player w-100 text-dark d-flex flex-wrap justify-content-around align-items-center p-3 hidden">
+                <audio id="audioPlayer"></audio>
+                <div class="track-info d-flex align-items-center gap-4">
+                    <div class="position-relative">
+                        <div class="gradient-overlay" style="border-radius: 0.7em"></div>
+                        <img src="" alt="Song Cover" id="currentTrackCover" width="100px" height="100px" />
+                    </div>
+                    <span id="currentTrackTitle" class="text-orange fw-bold fs-4">No Track</span>
+                </div>
+                <div class="controls d-flex align-items-center gap-2">
+                    <button id="playPauseBtn" class="btn fs-4"><i class="fa-solid fa-play fs-4"></i></button>
+                    <span id="currentTime">0:00</span>
+                    <input type="range" id="seekBar" value="0" min="0" step="1">
+                    <span id="totalDuration">0:00</span>
+                    <div class="volume-control position-relative px-2">
+                        <i id="volumeIcon" class="fa fa-volume-up fs-5 cursor-pointer"></i>
+                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                    </div>
+                </div>
+                <div class="close-container">
+                    <button type="button" class="btn btn-close position-absolute" aria-label="Close" onclick="hideMiniplayer()"></button>
+                </div>
+            </div>
+        </footer>
+    } 
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Loading screen
+        const loadingScreen = document.getElementById("loadingScreen");
+        
+        function hideLoadingScreen() {
+            loadingScreen.style.display = 'none';
+        }
+
+        function showLoadingScreen() {
+            loadingScreen.style.display = "flex";
+        }
+
+        window.addEventListener("load", () => {
+            hideLoadingScreen();
+        });
+
+        // Favourites functionality
+        async function toggleFavourite(button) {
+            const songId = button.getAttribute('data-song-id');
+            const userId = button.getAttribute('data-user-id');
+            const icon = button.querySelector('i');
+            const isFavourite = icon.classList.contains('fa-heart-circle-minus');
+
+            const url = 'https://localhost:7021/api/' + `users/${userId}/favourite/songs/${songId}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: isFavourite ? "DELETE" : "POST",
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    icon.classList.toggle("fa-heart");
+                    icon.classList.toggle("fa-regular");
+                    icon.classList.toggle("fa-solid");
+                    icon.classList.toggle("fa-heart-circle-minus");
+
+                    showToast(isFavourite ? "Успешно премахната песен от любими!" : "Успешно добавена песен към любими!");
+                }
+                else {
+                    showToast("Нещо се обърка! Не успяхме да добавим / премахнем тази песен от любими!", true);
+                }
+            }
+            catch (error) {
+                console.error("Error:", error);
+                showToast("Възникна проблем по време на комуникацията с база данни!", true);
+            }
+        }
+        function showToast(message, isError = false) {
+            const toastElement = document.getElementById("favToast");
+            const toastMessage = document.getElementById("favToastMessage");
+
+            toastMessage.textContent = message;
+
+            if (isError) {
+                toastElement.classList.remove("bg-orange");
+                toastElement.classList.add("bg-danger");
+            } else {
+                toastElement.classList.remove("bg-danger");
+                toastElement.classList.add("bg-orange");
+            }
+
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+
+        // Track song click
+        async function trackSongClick(songId, userId) {
+            const data = {
+                UserId: userId,
+                SongId: songId
+            };
+
+            await fetch('https://localhost:7021/api/songs/click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .catch(error => console.log(error));
+        }
+
+        // Miniplayer
+        document.addEventListener("DOMContentLoaded", () => {
+            const audioPlayer = document.getElementById("audioPlayer");
+            const playPauseBtn = document.getElementById("playPauseBtn");
+            const miniPlayer = document.getElementById("miniPlayer");
+            const currentTrackTitle = document.getElementById("currentTrackTitle");
+            const currentTrackCover = document.getElementById("currentTrackCover");
+            const currentTime = document.getElementById("currentTime");
+            const totalDuration = document.getElementById("totalDuration");
+            const seekBar = document.getElementById("seekBar");
+            const volumeSlider = document.getElementById("volumeSlider");
+
+            function setAudioSource(audioSrc, coverSrc, title, color) {
+                // Set and play audio
+                audioPlayer.src = audioSrc;
+                currentTrackCover.src = coverSrc;
+                currentTrackTitle.textContent = title;
+                miniPlayer.classList.remove("hidden");
+                miniPlayer.style = `--color: ${color}; --gradient-color: linear-gradient(45deg, ${color} 30%, transparent);`;
+                audioPlayer.play();
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause fs-4"></i>';
+            }
+
+            function hideMiniplayer() {
+                setAudioSource("", "", "", "");
+                miniPlayer.classList.add("hidden");
+            }
+
+            playPauseBtn.addEventListener("click", () => {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                    playPauseBtn.innerHTML = '<i class="fa-solid fa-pause fs-4"></i>';
+                }
+                else {
+                    audioPlayer.pause();
+                    playPauseBtn.innerHTML = '<i class="fa-solid fa-play fs-4"></i>';
+                }
+            });
+
+            audioPlayer.addEventListener("timeupdate", () => {
+                currentTime.textContent = formatTime(audioPlayer.currentTime);
+                seekBar.value = audioPlayer.currentTime;
+            });
+
+            audioPlayer.addEventListener("loadedmetadata", () => {
+                totalDuration.textContent = formatTime(audioPlayer.duration);
+                seekBar.max = audioPlayer.duration;
+            });
+
+            seekBar.addEventListener("input", () => {
+                if (!isNaN(audioPlayer.duration)) {
+                    audioPlayer.currentTime = seekBar.value;
+                }
+            });
+
+            volumeSlider.addEventListener("input", () => {
+                audioPlayer.volume = volumeSlider.value;
+            });
+
+            function formatTime(seconds) {
+                const min = Math.floor(seconds / 60);
+                const sec = Math.floor(seconds % 60);
+                return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            }
+
+            window.setAudioSource = setAudioSource;
+            window.hideMiniplayer = hideMiniplayer;
+        });
+    </script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

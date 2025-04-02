@@ -1,0 +1,288 @@
+/* Default and General */
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*:focus {
+    box-shadow: 0 0 0 0.25rem #e38e49 !important;
+    outline: none !important;
+}
+
+.gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-color);
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+
+/* Login / Register */
+.avatar-container:has(.avatar-label:hover) .avatar-label:not(:hover) img, .avatar-container:has(input[type="radio"]:checked) .avatar-label:not(:has(input[type="radio"]:checked)) img {
+    filter: brightness(0.9);
+}
+
+.avatar-label {
+    cursor: pointer;
+}
+
+.avatar-label:hover img, .avatar-label:focus img, .avatar-label:has(input[type="radio"]:focus) img {
+    transform: scale(1.1);
+    filter: brightness(1.1) !important;
+    border-radius: 0.7em !important;
+}
+
+.avatar-label:has(input[type="radio"]:checked) img{
+    transform: scale(1.1);
+    filter: brightness(1);
+    border-radius: 0.7em !important;
+    border: 3px solid #e38e49;
+}
+
+#formContainer, #imageContainer {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Index */
+.custom-btn-group .btn{
+    background: transparent !important;
+    border: none;
+}
+
+.custom-btn-group .btn:focus {
+    border-bottom: 2px solid #e38e49 !important;
+    box-shadow: none !important;
+}
+
+.custom-btn-group .btn:hover {
+    color: #e38e49 !important;
+}
+
+.selected {
+    border-bottom: 2px solid #e38e49 !important;
+}
+
+
+/* Custom classes */
+.transition {
+    transition: all 0.3s;
+}
+
+.transition-color {
+    transition: color 0.3s;
+}
+
+.border-bottom-2 {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.z-index-low {
+    z-index: -1;
+}
+
+.z-index-high {
+    z-index: 1;
+}
+
+.pointer-events-none {
+    pointer-events: none;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Colors */
+.text-orange {
+    color: #e38e49 !important;
+}
+
+.text-orange:is(a):hover {
+    color: #b05f1c !important;
+}
+
+.bg-orange {
+    background-color: #e38e49 !important;
+}
+
+.border-orange {
+    border-color: #e38e49 !important;
+}
+
+.btn-orange {
+    color: #fff;
+    background-color: #e38e49;
+    border-color: #e38e49;
+}
+
+.btn-orange:hover, .btn-orange:focus {
+    color: #fff;
+    background-color: #b05f1c;
+    border-color: #b05f1c;
+}
+
+.btn-outline-orange {
+    color: #e38e49;
+    background-color: transparent;
+    border-color: #e38e49;
+}
+
+.btn-outline-orange:hover, .btn-outline-orange:focus {
+    color: #fff;
+    background-color: #e38e49;
+    border-color: #e38e49;
+}
+
+.text-blue {
+    color: #1f509a !important;
+}
+
+.bg-blue {
+    background-color: #1f509a !important;
+}
+
+.border-blue {
+    border-color: #1f509a !important;
+}
+
+.text-blue:hover, .text-blue:focus {
+    color: #80a8e5 !important;
+}
+
+.text-dark-blue {
+    color: #0a3981 !important;
+    transition: color 0.3s;
+}
+
+.text-dark-blue:hover, .text-dark-blue:focus {
+    color: #0a3981 !important;
+}
+
+.bg-dark-blue {
+    background-color: #0a3981 !important;
+}
+
+.border-dark-blue {
+    border-color: #0a3981 !important;
+}
+
+.btn-dark-blue {
+    color: #fff;
+    background-color: #0a3981;
+    border-color: #0a3981;
+}
+
+.btn-dark-blue:hover, .btn-dark-blue:focus {
+    color: #fff;
+    background-color: #0a3981;
+    border-color: #0a3981;
+}
+
+.bg-hover-light {
+    background-color: transparent !important;
+    transition: background-color 0.3s;
+}
+
+.bg-hover-light:hover, .bg-hover-light:focus {
+    background-color: rgb(248, 249, 250) !important;
+}
+
+/* Loading animation */
+#loadingScreen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgb(248,249,250);
+    border-top: 5px solid #e38e49;
+    border-radius: 50%;
+    animation: spin 1.3s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(5%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Responsiveness */
+@media screen and (pointer: coarse), (max-width: 800px) {
+    #imageContainer {
+        position: absolute;
+    }
+
+    #imageContainer img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg) scale(1.5);
+        z-index: -10;
+        opacity: 0.4;
+    }
+}
+
+
+/* Rewrite Bootstrap classes */
+.text-light:is(a):hover, .text-light:is(a):focus, .text-light:is(button):hover, .text-light:is(button):focus {
+    color: #e38e49 !important;
+}

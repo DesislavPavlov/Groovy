@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Вход";
+}
+
+<div class="d-flex justify-content-evenly align-items-center vh-100">
+    <div class="w-100" id="imageContainer">
+        <img src="~/media/groovy logo.png" alt="placeholder" class="w-75" />
+    </div>
+
+
+    @*
+    Light gray - #F8F9FA
+    Dark - #212529
+    Orange - #e38e49
+    Light blue - #1f509a
+    Slightly darker blue - #0a3981
+    *@
+
+    <div class="w-100 d-flex gap-4 align-items-center flex-column bg-light p-5 pt-4 rounded-3 shadow" id="formContainer">
+        <div>
+            <h2 class="border-bottom-2 border-orange pb-2 text-dark">Впишете се!</h2>
+            <p class="opacity-50 m-0"><a class="text-blue text-decoration-none transition rounded-3" asp-action="Register" onclick="showLoadingScreen()">нямам профил</a></p>
+            <p class="opacity-50 m-0"><a class="text-blue text-decoration-none transition rounded-3" asp-action="HandleGuestLogin" onclick="showLoadingScreen()">влез като гост</a></p>
+        </div>
+
+        <form class="d-flex gap-3 flex-column" asp-action="HandleUserLogin" method="get">
+            <div class="form-group">
+                <label class="mb-1 text-muted" for="username">Потребителско име:</label>
+                <input type="text" value="" id="username" name="username" class="form-control" required/>
+            </div>
+
+            <div class="form-group text-muted">
+                <label class="mb-1" for="password">Парола:</label>
+                <input type="password" value="" id="password" name="password" class="form-control" required/>
+            </div>
+
+            <button type="submit" class="btn btn-orange" onclick="showLoadingScreen()">Вход!</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,331 @@
+﻿@model Groovy.ViewModels.IndexViewModel;
+@{
+    bool isAdmin = ViewBag.Username == "admin";
+    string GetBackgroundGenreColor(string mainColor)
+    {
+        mainColor += "80";
+        return mainColor;
+    }
+}
+
+<style>
+    .genre-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 1fr);
+        gap: 15px;
+    }
+
+    .genre-item {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        position: relative;
+        border-radius: 0.5em;
+        padding: 0.5em 1em;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out, filter 0.3s ease-in;
+        background-color: var(--bg-genre-color);
+        max-width: 100%;
+        white-space: nowrap;
+        animation-name: fadeIn;
+        animation-duration: 0.2s;
+    }
+
+    .genre-item:hover, .genre-item:focus {
+        transform: scale(1.02);
+        filter: brightness(0.9);
+    }
+
+    .genre-item h6 {
+        margin-left: 0.8em;
+        font-size: 0.9em;
+        color: #fff;
+    }
+
+    .genre-circle {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: var(--genre-color);
+    }
+
+    .add-genre-btn:hover, .add-genre-btn:focus {
+        background-color: #6c757d !important;
+        transform: scale(1.1);
+        filter: brightness(0.9);
+    }
+</style>
+
+<h3 class="mb-4 text-dark">Жанрове</h3>
+
+<div class="genre-grid mt-5">
+    @if (isAdmin)
+    {
+        <div>
+            <button type="button" class="btn btn-secondary add-genre-btn transition" data-bs-toggle="modal" data-bs-target="#createGenreModal">
+                <img src="~/media/add_button.jpg" alt="admin add genre button" width="50" height="50" />
+            </button>
+        </div>
+    }
+
+    @{
+        int delayIncrementor = 0;
+    }
+    @foreach (var genre in Model.Genres)
+    {
+        double delay = 0.05 * delayIncrementor++;
+        string delayString = delay.ToString(System.Globalization.CultureInfo.InvariantCulture) + "s";
+
+        <div>
+            <a asp-controller="Details" asp-action="GenreDetails" asp-route-id="@genre.Id" class="btn genre-item w-100" style="--genre-color: @genre.Color; --bg-genre-color: @GetBackgroundGenreColor(genre.Color); animation-delay: @delayString;">
+                <div class="genre-circle"></div>
+                <h6 class="m-0 ms-3">@genre.Name</h6>
+            </a>
+            @if (isAdmin)
+            {
+                <button type="button" class="btn edit-btn text-secondary" data-bs-toggle="modal" data-bs-target="#editGenreModal" data-genre-id="@genre.Id" data-genre-name="@genre.Name" data-genre-color="@genre.Color"><i class="fa-solid fa-pencil"></i></button>
+                <button type="button" class="btn delete-btn text-secondary" data-bs-toggle="modal" data-bs-target="#deleteGenreModal" data-genre-id="@genre.Id" data-genre-name="@genre.Name"><i class="fa-solid fa-trash"></i></button>
+            }
+        </div>
+    }
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createGenreModal" tabindex="-1" role="dialog" aria-labelledby="createGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGenreModalLabel">Добави жанр</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="uploadGenreForm" asp-action="UploadGenre" asp-controller="Upload" method="post" enctype="multipart/form-data">
+                    <div class="w-50 form-group mb-2">
+                        <label class="form-label text-muted" for="name">Име</label>
+                        <input class="form-control" type="text" value="" id="name" name="name" />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label text-muted" for="color">Цвят</label>
+                        <input class="form-control" type="color" value="" id="color" name="color" />
+                    </div>
+                </form>
+
+                <div class="alert alert-danger m-0 p-2 error-message" style="display: none"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <button type="button" class="btn btn-orange" id="submitGenre">Запази</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editGenreModal" tabindex="-1" role="dialog" aria-labelledby="editGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editGenreModalLabel">Редактирай жанр</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="updateGenreForm" asp-action="UpdateGenre" asp-controller="Update" method="post" enctype="multipart/form-data">
+                    <div class="w-50 form-group mb-2">
+                        <label class="form-label text-muted" for="name">Име</label>
+                        <input class="form-control" type="text" value="" id="name" name="name" />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label text-muted" for="color">Цвят</label>
+                        <input class="form-control" type="color" value="" id="color" name="color" />
+                    </div>
+                </form>
+
+                <div class="alert alert-danger m-0 p-2 error-message" style="display: none"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <button type="button" class="btn btn-orange" id="submitEditGenre">Запази</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteGenreModal" tabindex="-1" role="dialog" aria-labelledby="deleteGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteGenreModalLabel">Премахни жанр <span class="text-orange genre-name-placeholder"></span></h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <h6 class="text-dark fw-bolder">Сигурен/а ли сте, че искате да изтриете жанр <span class="text-orange genre-name-placeholder"></span>?</h6>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <button type="button" class="btn btn-danger" id="submitDeleteGenre">Изтрий</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Submit genre
+    document.getElementById("submitGenre").addEventListener("click", () => {
+        showLoadingScreen();
+        hideError();
+
+        const form = document.getElementById("uploadGenreForm");
+
+        // Validate
+        const nameInput = document.getElementById("name");
+
+        if (!nameInput.value.trim()) {
+            showError("Моля въведете име на жанр!");
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+
+            const createGenreModalElem = document.getElementById('createGenreModal');
+            const createGenreModal = bootstrap.Modal.getInstance(createGenreModalElem);
+            createGenreModal.hide();
+
+            location.reload();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            hideLoadingScreen();
+        });
+    });
+
+    // Submit edit genre
+    var editGenreModalElem = document.getElementById("editGenreModal");
+    editGenreModalElem.addEventListener("show.bs.modal", (event) => {
+
+        console.log('bliza')
+        hideError();
+
+        // Get info
+        var button = event.relatedTarget;
+        var genreId = button.getAttribute("data-genre-id");
+        var genreName = button.getAttribute("data-genre-name");
+        var genreColor = button.getAttribute("data-genre-color");
+
+        // Get inputs
+        const nameInput = editGenreModalElem.querySelector("#name");
+        const colorInput = editGenreModalElem.querySelector("#color");
+
+        // Set input values
+        nameInput.value = genreName;
+        colorInput.value = genreColor;
+
+        // Add request sending functionality
+        const editButton = document.getElementById("submitEditGenre");
+        editButton.removeEventListener("click", handleGenreEdit, { once: true });
+        editButton.addEventListener("click", handleGenreEdit, { once: true });
+
+        function handleGenreEdit() {
+            // Validate
+            if (!nameInput.value.trim()) {
+                showError("Моля въведете име на жанр!");
+                return;
+            }
+         
+            showLoadingScreen();
+
+            const formData = new FormData();
+            formData.append("genreId", genreId);
+            formData.append("name", nameInput.value);
+            formData.append("color", colorInput.value);
+
+            fetch("Update/UpdateGenre", {
+                method: 'PUT',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Server response:", data);
+
+                    const editModal = bootstrap.Modal.getInstance(editGenreModalElem);
+                    editModal.hide();
+
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    hideLoadingScreen();
+                });
+        }
+    });
+
+    // Submit delete genre
+    document.getElementById("deleteGenreModal").addEventListener("show.bs.modal", (event) => {
+        var button = event.relatedTarget;
+        var genreId = button.getAttribute("data-genre-id");
+        var genreName = button.getAttribute("data-genre-name");
+
+        document.querySelectorAll(".genre-title-placeholder").forEach(elem => elem.textContent = genreName);
+
+        const formData = new FormData();
+        formData.append("genreId", genreId);
+
+        const deleteButton = document.getElementById("submitDeleteGenre");
+        deleteButton.removeEventListener("click", handleGenreDelete, { once: true });
+        deleteButton.addEventListener("click", handleGenreDelete, { once: true });
+
+        function handleGenreDelete() {
+            showLoadingScreen();
+
+            fetch("Delete/DeleteGenre", {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Server response:", data);
+
+                    const deleteModalElem = document.getElementById('deleteGenreModal');
+                    const deleteModal = bootstrap.Modal.getInstance(deleteModalElem);
+                    deleteModal.hide();
+
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    hideLoadingScreen();
+                });
+        }
+    });
+
+    // Error message
+    function showError(message) {
+        const errorElem = document.querySelectorAll(".error-message");
+        errorElem.forEach(elem => {
+            elem.style.display = "block";
+            elem.innerText = message;
+        });
+    }
+    function hideError() {
+        const errorElem = document.querySelectorAll(".error-message");
+        errorElem.forEach(elem => {
+            elem.style.display = "none";
+        });
+    }
+</script>
