@@ -69,6 +69,7 @@ namespace Groovy.Controllers
                 {
                     viewModel = JsonConvert.DeserializeObject<IndexViewModel>(indexViewModelJson);
                     viewModel.FavouriteSongIds = favouriteSongIds;
+                    viewModel.TopSongs = await GetTopSongs();
                 }
 
                 return View(viewModel);
@@ -82,7 +83,6 @@ namespace Groovy.Controllers
 
             SongsViewModel viewModel = new SongsViewModel();
 
-            viewModel.UserId = userId;
             viewModel.FavouriteSongIds = favouriteSongs.Select(s => s.Id).ToList();
             viewModel.Artists = await GetArtists();
             viewModel.Genres = await GetGenres();
@@ -154,9 +154,9 @@ namespace Groovy.Controllers
             List<Song> songs = await _apiService.GetAsync<List<Song>>("songs");
             return songs;
         }
-        private async Task<List<Song>> GetTopSongs()
+        private async Task<List<TrendingSong>> GetTopSongs()
         {
-            List<Song> songs = await _apiService.GetAsync<List<Song>>("songs");
+            List<TrendingSong> songs = await _apiService.GetAsync<List<TrendingSong>>("songs/trending");
             return songs;
         }
         private async Task<List<Song>> GetSearchedSongs(string searchTerm)

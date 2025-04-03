@@ -281,7 +281,7 @@
         var genreId = button.getAttribute("data-genre-id");
         var genreName = button.getAttribute("data-genre-name");
 
-        document.querySelectorAll(".genre-title-placeholder").forEach(elem => elem.textContent = genreName);
+        document.querySelectorAll(".genre-name-placeholder").forEach(elem => elem.textContent = genreName);
 
         const formData = new FormData();
         formData.append("genreId", genreId);
