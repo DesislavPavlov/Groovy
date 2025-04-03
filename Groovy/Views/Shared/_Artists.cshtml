@@ -159,7 +159,7 @@
             <div class="gradient-overlay"></div>
 
             <div class="buttons">
-                <a class="view-btn text-light" asp-controller="Song" asp-action="SongDetails" asp-route-id="@artist.Id"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></a>
+                <a class="view-btn text-light" asp-controller="Details" asp-action="ArtistDetails" asp-route-id="@artist.Id"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></a>
                 @if (isAdmin)
                 {
                     <button type="button" class="btn edit-btn text-light" data-bs-toggle="modal" data-bs-target="#editArtistModal" data-artist='@Html.Raw(Json.Serialize(artist))' data-genres='@Html.Raw(Json.Serialize(Model.ArtistGenreRelations))'><i class="fa-solid fa-pencil"></i></button>
