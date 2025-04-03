@@ -176,6 +176,7 @@
                     <a class="view-btn text-light" asp-controller="Details" asp-action="SongDetails" asp-route-id="@song.Id"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></a>
                    
                     <button class="play-btn text-light" onclick="setAudioSource('@song.SongUrl', '@song.CoverUrl', '@song.Title', '@song.Color'); trackSongClick('@song.Id', '@Model.UserId');"><i class="fa-regular fa-circle-play"></i></button>
+                    
                     @if (isAdmin)
                     {
                         <button type="button" class="btn edit-btn text-light" data-bs-toggle="modal" data-bs-target="#editSongModal" data-song='@Html.Raw(Json.Serialize(song))' data-artists='@Html.Raw(Json.Serialize(Model.SongArtistRelations))' data-genres='@Html.Raw(Json.Serialize(Model.SongGenreRelations))'><i class="fa-solid fa-pencil"></i></button>
