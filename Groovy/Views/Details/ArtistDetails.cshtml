@@ -1,4 +1,5 @@
-﻿@model Groovy.ViewModels.ArtistDetailsViewModel;
+﻿@using Groovy.ViewModels;
+@model Groovy.ViewModels.ArtistDetailsViewModel;
 @{
     ViewData["Title"] = $"{Model.Artist.Name}";
     string GetBackgroundArtistColor(string mainColor)
@@ -20,7 +21,7 @@
 
         .artistColor img {
             position: sticky;
-            width: 40vh;
+            width: auto;
             height: 40vh;
             margin-left: 4vh;
             margin-top: 25vh;
@@ -45,15 +46,102 @@
         margin-left: 4vh;
         margin-top: 24vh;
     }
+    .artistSongs {
+        width: 40vw;
+        margin-top: 4vh;
+        margin-left: 8vh;
+    }
 
     #relatedArtistsTitle {
         font-size: 35px;
+    }
+
+    @@media (max-width: 767.98px) {
+        .artistColor {
+            flex-direction: column;
+            height: auto;
+            padding: 2vh;
+        }
+
+            .artistColor img {
+                width: 60vw;
+                height: auto;
+                margin: 2vh auto;
+                position: static;
+            }
+
+        .artist-info {
+            margin: 2vh 0;
+        }
+
+        h2 {
+            font-size: 10vw;
+        }
+
+        h3 {
+            font-size: 8vw;
+        }
+        /* Stack the two sections */
+        .d-flex {
+            flex-direction: column;
+        }
+
+        .relatedArtists, .artistSongs {
+            width: 90%; /* Take full width on mobile */
+            margin-left: 5vw;
+            margin-top: 2vh;
+        }
+
+        #relatedArtistsTitle {
+            font-size: 6vw;
+            text-align: center;
+        }
+    }
+
+    @@media (min-width: 768px) and (max-width: 1024px) {
+        .artistColor {
+            flex-direction: column;
+            height: auto;
+            padding: 4vh;
+        }
+
+            .artistColor img {
+                width: 40vw;
+                height: auto;
+                margin: 3vh auto;
+                position: static;
+            }
+
+        .artist-info {
+            margin: 3vh 0;
+        }
+
+        h2 {
+            font-size: 4vw;
+        }
+
+        h3 {
+            font-size: 3vw;
+        }
+
+        .relatedArtists, .artistSongs {
+            position: static;
+            width: 80vw;
+            margin: 3vh auto !important;
+            float: none;
+            display: block;
+        }
+
+        #relatedArtistsTitle {
+            font-size: 6vw;
+            text-align: center;
+        }
     }
 </style>
 
 <div class="container-fluid">
     <!-- Artist Header -->
-    <div class="artistColor">
+    <div class="artistColor rounded-3">
         <img id="artistPic" class="img-fluid" src="@Model.Artist.ImageUrl" alt="">
         <div class="artist-info">
             <h2 class="fw-bold">@Model.Artist.Name</h2>
@@ -70,9 +158,9 @@
         </div>
 
         <!-- Placeholder for Songs Section -->
-        <div class="artistSongs flex-grow-1">
+        <div class="artistSongs">
             <div>
-                <!-- Song list content here -->
+                @Html.Partial("_SongGrid", Model.Songs)
             </div>
         </div>
     </div>
