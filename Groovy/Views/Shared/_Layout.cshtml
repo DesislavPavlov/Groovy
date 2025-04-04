@@ -11,7 +11,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/88959bd2cd.js" crossorigin="anonymous"></script>
 
-
+    @RenderSection("HeadScripts", required: false)
 
     <style>
         /* Audio miniplayer css */
@@ -132,45 +132,45 @@
 
         /* Account Details */
         #accountContainer {
-            position: absolute;
-            top: 1em;
-            right: 1em;
-            transition: background-color 0.3s;
+        position: absolute;
+        top: 1em;
+        right: 1em;
+        transition: background-color 0.3s;
         }
 
         #accountContainer img {
-            border: 2px solid rgb(248, 249, 250);
-            border-radius: 100%;
+        border: 2px solid rgb(248, 249, 250);
+        border-radius: 100%;
         }
 
         #accountContainer:hover {
-            background-color: rgb(248, 249, 250);
+        background-color: rgb(248, 249, 250);
         }
 
         #accountContainer:hover p {
-            opacity: 1 !important;
+        opacity: 1 !important;
         }
 
         /* Cropper */
         /* Change the crop box border color */
         .cropper-view-box {
-            outline: 2px solid #e38e49 !important; /* Change to your desired color */
+        outline: 2px solid #e38e49 !important; /* Change to your desired color */
         }
 
         /* Crop area */
         .cropper-dashed {
-            border-color: #e38e49 !important;
+        border-color: #e38e49 !important;
         }
 
         /* Drag handles */
         .cropper-line,
         .cropper-point {
-            background-color: #e38e49 !important;
+        background-color: #e38e49 !important;
         }
 
         /* Shading outside */
         .cropper-modal {
-            background-color: #61330c !important;
+        background-color: #61330c !important;
         }
     </style>
 </head>
@@ -263,7 +263,7 @@
                     <span id="totalDuration">0:00</span>
                     <div class="volume-control position-relative px-2">
                         <i id="volumeIcon" class="fa fa-volume-up fs-5 cursor-pointer"></i>
-                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.3">
                     </div>
                 </div>
                 <div class="close-container">
@@ -272,6 +272,8 @@
             </div>
         </footer>
     } 
+
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -285,17 +287,17 @@
 
         // Loading screen
         const loadingScreen = document.getElementById("loadingScreen");
-        
+
         function hideLoadingScreen() {
-            loadingScreen.style.display = 'none';
+        loadingScreen.style.display = 'none';
         }
 
         function showLoadingScreen() {
-            loadingScreen.style.display = "flex";
+        loadingScreen.style.display = "flex";
         }
 
         window.addEventListener("load", () => {
-            hideLoadingScreen();
+        hideLoadingScreen();
         });
 
         // Favourites functionality
@@ -309,17 +311,24 @@
 
             try {
                 const response = await fetch(url, {
-                    method: isFavourite ? "DELETE" : "POST",
-                    mode: 'cors'
+                method: isFavourite ? "DELETE" : "POST",
+                mode: 'cors'
                 });
 
                 if (response.ok) {
+                    // Toggle heart icon currently
                     icon.classList.toggle("fa-heart");
                     icon.classList.toggle("fa-regular");
                     icon.classList.toggle("fa-solid");
                     icon.classList.toggle("fa-heart-circle-minus");
 
+                    // Show success message
                     showToast(isFavourite ? "Успешно премахната песен от любими!" : "Успешно добавена песен към любими!");
+                    
+                    // Prepare updated index view model 
+                    fetch('/Home/UpdateFavouriteSongs', {
+                        method: 'POST'
+                    });
                 }
                 else {
                     showToast("Нещо се обърка! Не успяхме да добавим / премахнем тази песен от любими!", true);
@@ -331,108 +340,109 @@
             }
         }
         function showToast(message, isError = false) {
-            const toastElement = document.getElementById("favToast");
-            const toastMessage = document.getElementById("favToastMessage");
+        const toastElement = document.getElementById("favToast");
+        const toastMessage = document.getElementById("favToastMessage");
 
-            toastMessage.textContent = message;
+        toastMessage.textContent = message;
 
-            if (isError) {
-                toastElement.classList.remove("bg-orange");
-                toastElement.classList.add("bg-danger");
-            } else {
-                toastElement.classList.remove("bg-danger");
-                toastElement.classList.add("bg-orange");
-            }
+        if (isError) {
+        toastElement.classList.remove("bg-orange");
+        toastElement.classList.add("bg-danger");
+        } else {
+        toastElement.classList.remove("bg-danger");
+        toastElement.classList.add("bg-orange");
+        }
 
-            const toast = new bootstrap.Toast(toastElement);
-            toast.show();
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
         }
 
         // Track song click
         async function trackSongClick(songId, userId) {
-            const data = {
-                UserId: userId,
-                SongId: songId
-            };
+        const data = {
+        UserId: userId,
+        SongId: songId
+        };
 
-            await fetch('https://localhost:7021/api/songs/click', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .catch(error => console.log(error));
+        await fetch('https://localhost:7021/api/songs/click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+        })
+        .catch(error => console.log(error));
         }
 
         // Miniplayer
         document.addEventListener("DOMContentLoaded", () => {
-            const audioPlayer = document.getElementById("audioPlayer");
-            const playPauseBtn = document.getElementById("playPauseBtn");
-            const miniPlayer = document.getElementById("miniPlayer");
-            const currentTrackTitle = document.getElementById("currentTrackTitle");
-            const currentTrackCover = document.getElementById("currentTrackCover");
-            const currentTime = document.getElementById("currentTime");
-            const totalDuration = document.getElementById("totalDuration");
-            const seekBar = document.getElementById("seekBar");
-            const volumeSlider = document.getElementById("volumeSlider");
+        const audioPlayer = document.getElementById("audioPlayer");
+        const playPauseBtn = document.getElementById("playPauseBtn");
+        const miniPlayer = document.getElementById("miniPlayer");
+        const currentTrackTitle = document.getElementById("currentTrackTitle");
+        const currentTrackCover = document.getElementById("currentTrackCover");
+        const currentTime = document.getElementById("currentTime");
+        const totalDuration = document.getElementById("totalDuration");
+        const seekBar = document.getElementById("seekBar");
+        const volumeSlider = document.getElementById("volumeSlider");
 
-            function setAudioSource(audioSrc, coverSrc, title, color) {
-                // Set and play audio
-                audioPlayer.src = audioSrc;
-                currentTrackCover.src = coverSrc;
-                currentTrackTitle.textContent = title;
-                miniPlayer.classList.remove("hidden");
-                miniPlayer.style = `--color: ${color}; --gradient-color: linear-gradient(45deg, ${color} 30%, transparent);`;
-                audioPlayer.play();
-                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause fs-4"></i>';
-            }
+        audioPlayer.volume = 0.3;
 
-            function hideMiniplayer() {
-                setAudioSource("", "", "", "");
-                miniPlayer.classList.add("hidden");
-            }
+        function setAudioSource(audioSrc, coverSrc, title, color) {
+        // Set and play audio
+        audioPlayer.src = audioSrc;
+        currentTrackCover.src = coverSrc;
+        currentTrackTitle.textContent = title;
+        miniPlayer.classList.remove("hidden");
+        miniPlayer.style = `--color: ${color}; --gradient-color: linear-gradient(45deg, ${color} 30%, transparent);`;
+        audioPlayer.play();
+        playPauseBtn.innerHTML = '<i class="fa-solid fa-pause fs-4"></i>';
+        }
 
-            playPauseBtn.addEventListener("click", () => {
-                if (audioPlayer.paused) {
-                    audioPlayer.play();
-                    playPauseBtn.innerHTML = '<i class="fa-solid fa-pause fs-4"></i>';
-                }
-                else {
-                    audioPlayer.pause();
-                    playPauseBtn.innerHTML = '<i class="fa-solid fa-play fs-4"></i>';
-                }
-            });
+        function hideMiniplayer() {
+        setAudioSource("", "", "", "");
+        miniPlayer.classList.add("hidden");
+        }
 
-            audioPlayer.addEventListener("timeupdate", () => {
-                currentTime.textContent = formatTime(audioPlayer.currentTime);
-                seekBar.value = audioPlayer.currentTime;
-            });
+        playPauseBtn.addEventListener("click", () => {
+        if (audioPlayer.paused) {
+        audioPlayer.play();
+        playPauseBtn.innerHTML = '<i class="fa-solid fa-pause fs-4"></i>';
+        }
+        else {
+        audioPlayer.pause();
+        playPauseBtn.innerHTML = '<i class="fa-solid fa-play fs-4"></i>';
+        }
+        });
 
-            audioPlayer.addEventListener("loadedmetadata", () => {
-                totalDuration.textContent = formatTime(audioPlayer.duration);
-                seekBar.max = audioPlayer.duration;
-            });
+        audioPlayer.addEventListener("timeupdate", () => {
+        currentTime.textContent = formatTime(audioPlayer.currentTime);
+        seekBar.value = audioPlayer.currentTime;
+        });
 
-            seekBar.addEventListener("input", () => {
-                if (!isNaN(audioPlayer.duration)) {
-                    audioPlayer.currentTime = seekBar.value;
-                }
-            });
+        audioPlayer.addEventListener("loadedmetadata", () => {
+        totalDuration.textContent = formatTime(audioPlayer.duration);
+        seekBar.max = audioPlayer.duration;
+        });
 
-            volumeSlider.addEventListener("input", () => {
-                audioPlayer.volume = volumeSlider.value;
-            });
+        seekBar.addEventListener("input", () => {
+        if (!isNaN(audioPlayer.duration)) {
+        audioPlayer.currentTime = seekBar.value;
+        }
+        });
 
-            function formatTime(seconds) {
-                const min = Math.floor(seconds / 60);
-                const sec = Math.floor(seconds % 60);
-                return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-            }
+        volumeSlider.addEventListener("input", () => {
+        audioPlayer.volume = volumeSlider.value;
+        });
 
-            window.setAudioSource = setAudioSource;
-            window.hideMiniplayer = hideMiniplayer;
+        function formatTime(seconds) {
+        const min = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        window.setAudioSource = setAudioSource;
+        window.hideMiniplayer = hideMiniplayer;
         });
     </script>
-
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
