@@ -27,17 +27,6 @@
         font-size: 55px;
     }
 
-    .genreSongs {
-        width: 40vw;
-        margin-left: 5%;
-    }
-
-    .genreArtists {
-        width: 18.5vw;
-        margin-top: 4vh;
-        margin-left: 4vh;
-    }
-
     @@media (max-width: 768px) {
     h2 {
         font-size: 36px;
@@ -68,12 +57,13 @@
             <h2 class="fw-bold">@Model.Genre.Name</h2>
         </div>
     </div>
-    <div class="d-flex">
-        <div class="genreArtists">
+    <div class="d-flex container gap-5 mt-5">
+        <div class="col-4">
+            <p id="artistsOfGenreTitle" class="text-dark fs-3">Изпълнители 🎤:</p>
             @Html.Partial("_EntityList", Model.Artists)
         </div>
         <!-- Placeholder for Songs Section -->
-        <div class="genreSongs">
+        <div class="col-8">
             <div>
                 @Html.Partial("_SongGrid", Model.Songs)
             </div>

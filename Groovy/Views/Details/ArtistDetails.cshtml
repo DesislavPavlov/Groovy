@@ -42,18 +42,7 @@
     }
 
     .relatedArtists {
-        width: 18.5vw;
-        margin-left: 4vh;
         margin-top: 24vh;
-    }
-    .artistSongs {
-        width: 40vw;
-        margin-top: 4vh;
-        margin-left: 8vh;
-    }
-
-    #relatedArtistsTitle {
-        font-size: 35px;
     }
 
     @@media (max-width: 767.98px) {
@@ -150,15 +139,15 @@
     </div>
 
     <!-- Main Content -->
-    <div class="d-flex">
+    <div class="d-flex container gap-5 mt-5">
         <!-- Related Artists Section -->
-        <div class="relatedArtists">
-            <p id="relatedArtistsTitle">Подобни артисти 🎤</p>
+        <div class="relatedArtists col-3">
+            <p id="relatedArtistsTitle" class="text-dark fs-3">Подобни артисти 🎤</p>
             @Html.Partial("_EntityList", Model.RelatedArtists)
         </div>
 
         <!-- Placeholder for Songs Section -->
-        <div class="artistSongs">
+        <div class="col-8">
             <div>
                 @Html.Partial("_SongGrid", Model.Songs)
             </div>
