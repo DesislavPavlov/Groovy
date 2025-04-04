@@ -2,6 +2,7 @@
 using Groovy.Services;
 using Groovy.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
 
 namespace Groovy.Controllers
 {
@@ -63,6 +64,12 @@ namespace Groovy.Controllers
         }
         public async Task<IActionResult> ArtistDetails(int id)
         {
+            ArtistDetailsViewModel viewModel = new ArtistDetailsViewModel()
+            {
+                Artist = await GetArtist(id),
+                RelatedArtists = await GetRelatedArtists(id),
+                Songs = await GetArtistSongs(id)
+            };
             ArtistActivityModel activityModel = new ArtistActivityModel()
             {
                 UserId = int.Parse(HttpContext.Session.GetString("UserId")),
@@ -71,10 +78,16 @@ namespace Groovy.Controllers
 
             await _apiService.PostReturnBoolAsync<ArtistActivityModel>("genres/click", activityModel);
 
-            return View();
+            return View(viewModel);
         }
         public async Task<IActionResult> GenreDetails(int id)
         {
+            GenreDetailsViewModel viewModel = new GenreDetailsViewModel()
+            {
+                Genre = await GetGenre(id),
+                Songs = await GenreSongs(id),
+                Artists = await GetGenreArtists(id)
+            };
             GenreActivityModel activityModel = new GenreActivityModel()
             {
                 UserId = int.Parse(HttpContext.Session.GetString("UserId")),
@@ -83,7 +96,7 @@ namespace Groovy.Controllers
 
             await _apiService.PostReturnBoolAsync<GenreActivityModel>("genres/click", activityModel);
 
-            return View();
+            return View(viewModel);
         }
 
         // Song
@@ -135,6 +148,76 @@ namespace Groovy.Controllers
         private async Task<List<Song>> GetFavouriteSongs(int userId)
         {
             return await _apiService.GetAsync<List<Song>>($"users/{userId}/favourite/songs");
+        }
+
+        // Artist
+        private async Task<Artist> GetArtist(int id)
+        {
+            Artist artist = await _apiService.GetAsync<Artist>($"artists/{id}");
+            if (artist == null)
+            {
+                throw new ArgumentException("Artist not found");
+            }
+            else
+            return artist;
+        }
+        private async Task<List<Artist>> GetRelatedArtists(int id)
+        {
+            List<Artist> artists = await _apiService.GetAsync<List<Artist>>($"artists/{id}/related");
+            Random rng = new Random();
+            while (artists.Count > 5)
+            {
+                int deleteIndex = rng.Next(artists.Count);
+                artists.RemoveAt(deleteIndex);
+            }
+            return artists;
+        }
+        private async Task<List<Artist>> GetGenreArtists(int id)
+        {
+            List<Artist> artists = await _apiService.GetAsync<List<Artist>>($"genres/{id}/artists");
+            Random rng = new Random();
+            while (artists.Count > 5)
+            {
+                int deleteIndex = rng.Next(artists.Count);
+                artists.RemoveAt(deleteIndex);
+            }
+            return artists;
+        }
+        private async Task<List<Song>> GetArtistSongs(int id)
+        {
+            return await _apiService.GetAsync<List<Song>>($"artists/{id}/songs");
+        }
+
+        // Genre
+        private async Task<Genre> GetGenre(int id)
+        {
+            Genre genre = await _apiService.GetAsync<Genre>($"genres/{id}");
+            return genre;
+        }
+        private async Task<List<int>> GetSongsByGenre(int id)
+        {
+            Dictionary<string, int[]> allSongs = await _apiService.GetAsync<Dictionary<string, int[]>>("songs/genres");
+
+            List<int> filteredSongIds = allSongs
+                .Where(kvp => kvp.Value.Contains(id))
+                .Select(kvp => int.Parse(kvp.Key))
+                .ToList();
+
+            return filteredSongIds;
+        }
+        private async Task<List<Song>> GenreSongs(int id)
+        {
+            List<int> songIds = await GetSongsByGenre(id);
+
+            List<Song> songs = new List<Song>();
+
+            foreach (int aid in songIds)
+            {
+                Song song = await GetSong(aid);
+                songs.Add(song);
+            }
+
+            return songs;
         }
     }
 }
