@@ -1,9 +1,13 @@
-﻿@model Groovy.ViewModels.SongsViewModel;
+﻿@using Groovy.ViewModels;
+@using Newtonsoft.Json;
+@model List<Song>;
 @{
     int userId = int.Parse(Context.Session.GetString("UserId"));
     string username = Context.Session.GetString("Username");
     bool isGuest = username == "Гост";
     bool isAdmin = username == "admin";
+
+    IndexViewModel indexViewModel = JsonConvert.DeserializeObject<IndexViewModel>(Context.Session.GetString("IndexViewModel"));
 }
 
 <style>
@@ -168,14 +172,14 @@
         </div>
     }
 
-    @if (Model.Songs != null && Model.Songs.Count > 0)
+    @if (Model != null && Model.Count > 0)
     {
         int delayIncrementor = 0;
-        @foreach (var song in Model.Songs)
+        @foreach (var song in Model)
         {
             double delay = 0.05 * delayIncrementor++;
             string delayString = delay.ToString(System.Globalization.CultureInfo.InvariantCulture) + "s";
-            bool isFavourite = Model.FavouriteSongIds.Contains(song.Id);
+            bool isFavourite = indexViewModel.FavouriteSongIds.Contains(song.Id);
 
             <div class="song-item" style="--gradient-color: linear-gradient(-45deg, @song.Color 30%, transparent); --color: @song.Color; animation-delay: @delayString;">
                 <img src="@song.CoverUrl" alt="@song.Title Cover" />
@@ -194,7 +198,7 @@
 
                     @if (isAdmin)
                     {
-                        <button type="button" class="btn edit-btn text-light" data-bs-toggle="modal" data-bs-target="#editSongModal" data-song='@Html.Raw(Json.Serialize(song))' data-artists='@Html.Raw(Json.Serialize(Model.SongArtistRelations))' data-genres='@Html.Raw(Json.Serialize(Model.SongGenreRelations))'><i class="fa-solid fa-pencil"></i></button>
+                        <button type="button" class="btn edit-btn text-light" data-bs-toggle="modal" data-bs-target="#editSongModal" data-song='@Html.Raw(Json.Serialize(song))' data-artists='@Html.Raw(Json.Serialize(indexViewModel.SongArtistRelations))' data-genres='@Html.Raw(Json.Serialize(indexViewModel.SongGenreRelations))'><i class="fa-solid fa-pencil"></i></button>
                         <button type="button" class="btn delete-btn text-light" data-bs-toggle="modal" data-bs-target="#deleteSongModal" data-song-title="@song.Title" data-song-id="@song.Id"><i class="fa-solid fa-trash"></i></button>
                     }
                 </div>
@@ -233,7 +237,7 @@
                     <!-- Artists -->
                     <div class="form-group mb-2 artist-container">
                         <label class="form-label text-muted">Изпълнители</label>
-                        @foreach (var artist in Model.Artists)
+                        @foreach (var artist in indexViewModel.Artists)
                         {
                             <div class="form-group d-flex align-items-center gap-2">
                                 <input class="form-check m-0 rounded-3" type="checkbox" id="@artist.Name" name="artist" value="@artist.Id" />
@@ -245,7 +249,7 @@
                     <!-- Genres -->
                     <div class="form-group mb-2 genre-container">
                         <label class="form-label text-muted">Жанрове</label>
-                        @foreach (var genre in Model.Genres)
+                        @foreach (var genre in indexViewModel.Genres)
                         {
                             <div class="form-group d-flex align-items-center gap-2">
                                 <input class="form-check m-0 rounded-3" type="checkbox" id="@genre.Name" name="genre" value="@genre.Id" />
@@ -314,7 +318,7 @@
                     <!-- Artists -->
                     <div class="form-group mb-2 artist-container">
                         <label class="form-label text-muted">Изпълнители</label>
-                        @foreach (var artist in Model.Artists)
+                        @foreach (var artist in indexViewModel.Artists)
                         {
                             <div class="form-group d-flex align-items-center gap-2">
                                 <input class="form-check m-0 rounded-3" type="checkbox" id="@artist.Name" name="artist" value="@artist.Id" />
@@ -326,7 +330,7 @@
                     <!-- Genres -->
                     <div class="form-group mb-2 genre-container">
                         <label class="form-label text-muted">Жанрове</label>
-                        @foreach (var genre in Model.Genres)
+                        @foreach (var genre in indexViewModel.Genres)
                         {
                             <div class="form-group d-flex align-items-center gap-2">
                                 <input class="form-check m-0 rounded-3" type="checkbox" id="@genre.Name" name="genre" value="@genre.Id" />

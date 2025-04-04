@@ -1,20 +1,20 @@
 ﻿@using Groovy.ViewModels;
 @model Groovy.ViewModels.IndexViewModel;
 @{
-    SongsViewModel songsViewModel = new SongsViewModel()
-    {
-        Songs = Model.Songs,
-        FavouriteSongIds = Model.FavouriteSongIds,
-        Artists = Model.Artists,
-        Genres = Model.Genres,
-        SongArtistRelations = Model.SongGenreRelations,
-        SongGenreRelations = Model.SongGenreRelations
-    };
+    // SongsViewModel songsViewModel = new SongsViewModel()
+    // {
+    //     Songs = Model.Songs,
+    //     FavouriteSongIds = Model.FavouriteSongIds,
+    //     Artists = Model.Artists,
+    //     Genres = Model.Genres,
+    //     SongArtistRelations = Model.SongGenreRelations,
+    //     SongGenreRelations = Model.SongGenreRelations
+    // };
 }
 
 <h3>Препоръчано за Вас:</h3>
 
-@Html.Partial("_SongGrid", songsViewModel)
+@Html.Partial("_SongGrid", Model.Songs)
 
 <div class="all-songs-button-container mt-5 text-end">
     <a asp-action="Songs" class="text-orange text-decoration-none transition-color cursor-pointer">Виж всички песни <i class="fa-solid fa-turn-up"></i></a>

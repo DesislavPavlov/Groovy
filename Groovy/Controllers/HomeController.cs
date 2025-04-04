@@ -68,7 +68,6 @@ namespace Groovy.Controllers
                 else
                 {
                     viewModel = JsonConvert.DeserializeObject<IndexViewModel>(indexViewModelJson);
-                    viewModel.FavouriteSongIds = favouriteSongIds;
                     viewModel.TopSongs = await GetTopSongs();
                 }
 
@@ -83,11 +82,11 @@ namespace Groovy.Controllers
 
             SongsViewModel viewModel = new SongsViewModel();
 
-            viewModel.FavouriteSongIds = favouriteSongs.Select(s => s.Id).ToList();
-            viewModel.Artists = await GetArtists();
-            viewModel.Genres = await GetGenres();
-            viewModel.SongArtistRelations = await GetSongArtistRelations();
-            viewModel.SongGenreRelations = await GetSongGenreRelations();
+            //viewModel.FavouriteSongIds = favouriteSongs.Select(s => s.Id).ToList();
+            //viewModel.Artists = await GetArtists();
+            //viewModel.Genres = await GetGenres();
+            //viewModel.SongArtistRelations = await GetSongArtistRelations();
+            //viewModel.SongGenreRelations = await GetSongGenreRelations();
 
             if (string.IsNullOrEmpty(searchTerm))
             {
@@ -178,6 +177,24 @@ namespace Groovy.Controllers
         {
             Dictionary<int, List<int>> relations = await _apiService.GetAsync<Dictionary<int, List<int>>>("songs/genres");
             return relations;
+        }
+
+        // Update IndexViewModel favourites
+        [HttpPost]
+        public async Task<ActionResult> UpdateFavouriteSongs()
+        {
+            int userId = int.Parse(HttpContext.Session.GetString("UserId"));
+            string indexViewModelJson = HttpContext.Session.GetString("IndexViewModel");
+            IndexViewModel viewModel = JsonConvert.DeserializeObject<IndexViewModel>(indexViewModelJson);
+
+            List<Song> favouriteSongs = await GetFavouriteSongs(userId);
+            List<int> favouriteSongIds = favouriteSongs.Select(s => s.Id).ToList();
+            viewModel.FavouriteSongIds = favouriteSongIds;
+
+            HttpContext.Session.Remove("IndexViewModel");
+            HttpContext.Session.SetString("IndexViewModel", JsonConvert.SerializeObject(viewModel));
+
+            return Ok();
         }
 
 
