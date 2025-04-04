@@ -6,11 +6,8 @@
 @{
     ViewData["Title"] = "Начало";
     bool isGuest = Model.Username == "Гост";
+    bool isAdmin = Model.Username == "admin";
 }
-
-
-<!-- Cropper CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
 
 <style>
     .buttons {
@@ -30,28 +27,6 @@
     .play-btn:active, .view-btn:active, .edit-btn:active, .delete-btn:active {
     color: #b05f1c !important;
     /* transform: scale(0.95); */
-    }
-
-    /* Cropper */
-    /* Change the crop box border color */
-    .cropper-view-box {
-    outline: 2px solid #e38e49 !important; /* Change to your desired color */
-    }
-
-    /* Crop area */
-    .cropper-dashed {
-    border-color: #e38e49 !important;
-    }
-
-    /* Drag handles */
-    .cropper-line,
-    .cropper-point {
-    background-color: #e38e49 !important;
-    }
-
-    /* Shading outside */
-    .cropper-modal {
-    background-color: #61330c !important;
     }
 
     /* Top trending */
@@ -148,26 +123,33 @@
 
 <h2 class="mt-4 text-center text-dark fst-italic">Добре дошъл, <span class="text-orange">@Model.Username</span>!</h2>
 
-<div class="container my-5">
-    <h2 class="text-center fw-bold mb-5">🔥 Нашите любими</h2>
+<div class="container my-5 d-flex align-items-center flex-column">
+    <h2 class="text-center fw-bold mb-5">🔥 Най-известни в България!</h2>
 
     <div class="d-flex justify-content-center align-items-end trending-container">
         @for (int i = 0; i < Model.TopSongs.Count; i++)
         {
-            int sizeClass = i == 2 ? 3 : (i == 1 || i == 3 ? 2 : 1);
-            <div class="trending-item size-@sizeClass">
-                <div class="shadow-lg position-relative">
-                    <img src="@Model.TopSongs[i].CoverUrl" class="card-img-top rounded border-light border-2 border" alt="Trending Song">
+            int sizeClass = i == 2 ? 5 : (i == 1 || i == 3 ? 4 : 3);
+            TrendingSong song = Model.TopSongs[i];
+
+            <div class="trending-item size-4 mb-@sizeClass pb-@sizeClass">
+                <div class="shadow-lg position-relative d-flex justify-content-center">
+                    <img src="@song.ThumbnailUrl" class="card-img-top rounded border-light border-2 border" alt="Trending Song">
 
                     <div class="overlay position-absolute bottom-0 w-100 text-center p-2">
-                        <h5 class="fw-bold top-song-title">@Model.TopSongs[i].Title</h5>
+                        <h5 class="fw-bold top-song-title">@song.Title</h5>
                     </div>
 
-                    @* <button class="play-btn text-light" onclick="setAudioSource('@song.SongUrl', '@song.CoverUrl', '@song.Title', '@song.Color')"><i class="fa-regular fa-circle-play"></i></button> *@
+                    <button class="play-btn text-light" onclick="setAudioSource('@song.MusicLink', '@song.ThumbnailUrl', '@song.Title', '#e38e49')"><i class="fa-regular fa-circle-play"></i></button>
                 </div>
             </div>
         }
     </div>
+
+    @if (isAdmin)
+    {
+        <button class="btn btn-orange mt-5" onclick="sendTrendingRequest()">Обнови</button>
+    }
 </div>
 
 
@@ -181,15 +163,10 @@
     <div id="contentContainer"></div>
 </section>
 
-<!-- Cropper.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <!-- JQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    // Cropper init
-    let cropper;
-
     // Ajax partial view rendering
     $(document).ready(function () {
         $(".load-view").click(function () {
@@ -222,4 +199,18 @@
         $(".load-view").first().click();
     });
 
+    // Trending refresh POST request
+    function sendTrendingRequest() {
+        showLoadingScreen();
+
+        fetch('https://localhost:7021/api/songs/trending', {
+            method: 'POST'
+        })
+        .then(() => {
+            location.reload();
+        })
+        .catch(() => {
+            hideLoadingScreen();
+        });;
+    }
 </script>

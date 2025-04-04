@@ -11,7 +11,7 @@ namespace Groovy.ViewModels
         public List<Artist> Artists { get; set; }
         public List<Genre> Genres { get; set; }
         public List<int> FavouriteSongIds { get; set; }
-        public List<Song> TopSongs { get; set; }
+        public List<TrendingSong> TopSongs { get; set; }
         public Dictionary<int, List<int>> ArtistGenreRelations { get; set; }
         public Dictionary<int, List<int>> SongArtistRelations { get; set; }
         public Dictionary<int, List<int>> SongGenreRelations { get; set; }

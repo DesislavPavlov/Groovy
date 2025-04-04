@@ -7,11 +7,14 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Groovy.styles.css" asp-append-version="true" />
+    <!-- Cropper CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/88959bd2cd.js" crossorigin="anonymous"></script>
 
+
+
     <style>
-        
-    /* Audio miniplayer css */
+        /* Audio miniplayer css */
         .mini-player {
         background-color: rgb(248,249,250);
         box-shadow: 0px -4px 10px 2px #e38e4978 inset, 0px -5px 10px 2px #e38e4924;
@@ -147,6 +150,28 @@
         #accountContainer:hover p {
             opacity: 1 !important;
         }
+
+        /* Cropper */
+        /* Change the crop box border color */
+        .cropper-view-box {
+            outline: 2px solid #e38e49 !important; /* Change to your desired color */
+        }
+
+        /* Crop area */
+        .cropper-dashed {
+            border-color: #e38e49 !important;
+        }
+
+        /* Drag handles */
+        .cropper-line,
+        .cropper-point {
+            background-color: #e38e49 !important;
+        }
+
+        /* Shading outside */
+        .cropper-modal {
+            background-color: #61330c !important;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -251,8 +276,13 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
     <script>
+        // Cropper init
+        let cropper;
+
         // Loading screen
         const loadingScreen = document.getElementById("loadingScreen");
         

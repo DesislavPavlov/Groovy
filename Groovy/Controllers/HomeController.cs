@@ -52,7 +52,7 @@ namespace Groovy.Controllers
                         UserId = user.Id,
                         Username = user.Username,
                         AvatarUrl = user.AvatarUrl,
-                        Songs = await GetRecommendedSongs(),
+                        Songs = await GetRecommendedSongs(userId),
                         Artists = await GetArtists(),
                         Genres = await GetGenres(),
                         FavouriteSongIds = favouriteSongIds,
@@ -69,6 +69,7 @@ namespace Groovy.Controllers
                 {
                     viewModel = JsonConvert.DeserializeObject<IndexViewModel>(indexViewModelJson);
                     viewModel.FavouriteSongIds = favouriteSongIds;
+                    viewModel.TopSongs = await GetTopSongs();
                 }
 
                 return View(viewModel);
@@ -81,8 +82,12 @@ namespace Groovy.Controllers
             List<Song> favouriteSongs = await GetFavouriteSongs(userId);
 
             SongsViewModel viewModel = new SongsViewModel();
-            viewModel.UserId = userId;
+
             viewModel.FavouriteSongIds = favouriteSongs.Select(s => s.Id).ToList();
+            viewModel.Artists = await GetArtists();
+            viewModel.Genres = await GetGenres();
+            viewModel.SongArtistRelations = await GetSongArtistRelations();
+            viewModel.SongGenreRelations = await GetSongGenreRelations();
 
             if (string.IsNullOrEmpty(searchTerm))
             {
@@ -131,9 +136,17 @@ namespace Groovy.Controllers
             List<Song> songs = await _apiService.GetAsync<List<Song>>($"users/{userId}/favourite/songs");
             return songs;
         }
-        private async Task<List<Song>> GetRecommendedSongs()
+        private async Task<List<Song>> GetRecommendedSongs(int userId)
         {
-            List<Song> songs = await _apiService.GetAsync<List<Song>>("songs");
+            List<Song> songs = await _apiService.GetAsync<List<Song>>($"songs/recommended?userId={userId}");
+
+            Random rng = new Random();
+            while (songs.Count > 20)
+            {
+                int deleteIndex = rng.Next(songs.Count);
+                songs.RemoveAt(deleteIndex);
+            }
+
             return songs;
         }
         private async Task<List<Song>> GetAllSongs()
@@ -141,9 +154,9 @@ namespace Groovy.Controllers
             List<Song> songs = await _apiService.GetAsync<List<Song>>("songs");
             return songs;
         }
-        private async Task<List<Song>> GetTopSongs()
+        private async Task<List<TrendingSong>> GetTopSongs()
         {
-            List<Song> songs = await _apiService.GetAsync<List<Song>>("songs");
+            List<TrendingSong> songs = await _apiService.GetAsync<List<TrendingSong>>("songs/trending");
             return songs;
         }
         private async Task<List<Song>> GetSearchedSongs(string searchTerm)

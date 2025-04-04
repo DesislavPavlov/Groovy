@@ -36,7 +36,7 @@ namespace Groovy.Controllers
             Song song = await GetSong(id);
             if (song == null)
             {
-                return BadRequest(new { error = "Song or song cover / audio not found." });
+                return BadRequest("Song or song cover / audio not found.");
             }
 
             int userId = int.Parse(HttpContext.Session.GetString("UserId"));
@@ -47,7 +47,7 @@ namespace Groovy.Controllers
                 UserId = userId,
                 CurrentSong = song,
                 RelatedSongs = await GetRelatedSongs(id),
-                RecommendedSongs = await GetRecommendedSongs(),
+                RecommendedSongs = await GetRecommendedSongs(userId, song.Id),
                 FavouriteSongIds = favouriteSongs.Select(s => s.Id).ToList()
             };
 
@@ -98,10 +98,10 @@ namespace Groovy.Controllers
             Song song = await _apiService.GetAsync<Song>($"songs/{songId}");
             return song;
         }
-        private async Task<List<Song>> GetRecommendedSongs()
+        private async Task<List<Song>> GetRecommendedSongs(int userId, int currentSongId)
         {
-            // TODO: Implement recommended songs
-            List<Song> songs = await _apiService.GetAsync<List<Song>>("songs");
+            List<Song> songs = await _apiService.GetAsync<List<Song>>($"songs/recommended?userId={userId}&currentSongId={currentSongId}");
+
             Random rng = new Random();
             while (songs.Count > 5)
             {
@@ -114,6 +114,13 @@ namespace Groovy.Controllers
         private async Task<List<Song>> GetRelatedSongs(int songId)
         {
             List<Song> songs = await _apiService.GetAsync<List<Song>>($"songs/{songId}/related");
+
+            Random rng = new Random();
+            while (songs.Count > 5)
+            {
+                int deleteIndex = rng.Next(songs.Count);
+                songs.RemoveAt(deleteIndex);
+            }
             return songs;
         }
 
