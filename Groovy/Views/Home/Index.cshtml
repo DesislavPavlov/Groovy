@@ -11,137 +11,137 @@
 
 <style>
     .buttons {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 2;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 2;
     }
 
     .play-btn:active, .view-btn:active, .edit-btn:active, .delete-btn:active {
-    color: #b05f1c !important;
-    /* transform: scale(0.95); */
+        color: #b05f1c !important;
     }
 
     /* Top trending */
     /* Layout & Scaling */
     .trending-container {
-    width: 100%;
-    height: 40vh;
-    gap: 10px;
-    background: #e38e49cc;
-    box-shadow: 0 0 0px 20px #e38e49cc;
+        width: 100%;
+        /* height: 40vh; */
+        gap: 10px;
+        background: #e38e49cc;
+        box-shadow: 0 0 0px 20px #e38e49cc;
+        flex-wrap: wrap;
+        padding: 1rem;
+        height: auto;
+        justify-content: center;
     }
 
     .trending-item {
-    position: relative;
-    transition: transform 0.4s ease, opacity 0.3s ease;
+        position: relative;
+        transition: transform 0.4s ease, opacity 0.3s ease;
+        flex: 1 1 150px;
+        max-width: 200px;
+        min-width: 130px;
+        margin: 0.5rem;
     }
-
-    /* Progressive Scaling */
-    .size-1 {
-    width: 100px;
-    height: 150px;
-    }
-
-    .size-2 {
-    width: 140px;
-    height: 200px;
-    }
-
-    .size-3 {
-    width: 180px;
-    height: 250px;
-    }
-    /* Middle Song (Largest) */
 
     /* Hover Effect */
     .trending-item:hover {
-    transform: translateY(-10px);
-    cursor: pointer;
+        transform: translateY(-10px);
+        cursor: pointer;
     }
 
     /* Song Title with Underline */
     .top-song-title {
-    position: relative;
-    display: inline-block;
-    font-size: 1rem;
-    color: white;
+        position: relative;
+        display: inline-block;
+        font-size: 1rem;
+        color: white;
     }
 
     .top-song-title::after {
-    content: "";
-    display: block;
-    width: 0;
-    height: 3px;
-    background: white;
-    transition: width 0.3s ease;
-    margin: auto;
+        content: "";
+        display: block;
+        width: 0;
+        height: 3px;
+        background: white;
+        transition: width 0.3s ease;
+        margin: auto;
     }
 
     .trending-item:hover .top-song-title::after {
-    width: 100%;
+        width: 100%;
     }
 
     /* Overlay */
     .overlay {
-    background: rgba(0, 0, 0, 0.7);
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+        background: rgba(0, 0, 0, 0.7);
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
     }
 
     .trending-item:hover .overlay {
-    opacity: 1;
+        opacity: 1;
     }
 
     /* Responsive Scaling */
     @@media (max-width: 768px) {
-    .size-1
-    {
-    width: 80px;
-    height: 120px;
+        .trending-item {
+            max-width: 45%;
+        }
+
+        .top-song-title {
+            font-size: 0.9rem;
+        }
+
+        .trending-container {
+            gap: 8px;
+        }
     }
 
-    .size-2 {
-    width: 110px;
-    height: 160px;
-    }
+    @@media (max-width: 480px) {
+        .trending-item {
+            max-width: 100%;
+        }
 
-    .size-3 {
-    width: 140px;
-    height: 200px;
-    }
+        .top-song-title {
+            font-size: 0.85rem;
+        }
 
+        .trending-container {
+            box-shadow: 0 0 0px 10px #e38e49cc;
+        }
     }
 </style>
 
 <h2 class="mt-4 text-center text-dark fst-italic">Добре дошъл, <span class="text-orange">@Model.Username</span>!</h2>
 
 <div class="container my-5 d-flex align-items-center flex-column">
-    <h2 class="text-center fw-bold mb-5">🔥 Най-известни в България!</h2>
+    <h2 class="text-center fw-bold mb-5">🔥 Най-известни в <b class="text-orange">България</b> 🔥</h2>
 
     <div class="d-flex justify-content-center align-items-end trending-container">
         @for (int i = 0; i < Model.TopSongs.Count; i++)
         {
-            int sizeClass = i == 2 ? 5 : (i == 1 || i == 3 ? 4 : 3);
+            int sizeClass = i == 2 ? 5 : (i == 1 || i == 3 ? 3 : 0);
             TrendingSong song = Model.TopSongs[i];
 
-            <div class="trending-item size-4 mb-@sizeClass pb-@sizeClass">
-                <div class="shadow-lg position-relative d-flex justify-content-center">
+            <div class="trending-item mb-lg-@sizeClass pb-lg-@sizeClass mb-2 pb-2 d-flex flex-column align-items-center">
+                <div class="shadow-lg position-relative">
                     <img src="@song.ThumbnailUrl" class="card-img-top rounded border-light border-2 border" alt="Trending Song">
 
                     <div class="overlay position-absolute bottom-0 w-100 text-center p-2">
                         <h5 class="fw-bold top-song-title">@song.Title</h5>
                     </div>
 
-                    <button class="play-btn text-light" onclick="setAudioSource('@song.MusicLink', '@song.ThumbnailUrl', '@song.Title', '#e38e49')"><i class="fa-regular fa-circle-play"></i></button>
                 </div>
+                <button class="text-light btn bg-hover-light mt-1 fs-4" onclick="setAudioSource('@song.MusicLink', '@song.ThumbnailUrl', '@song.Title', '#e38e49')"><i class="fa-regular fa-circle-play"></i></button>
+
             </div>
         }
     </div>

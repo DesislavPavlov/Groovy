@@ -28,7 +28,7 @@
     animation-fill-mode: forwards;
     }
 
-    .artist-item:hover {
+    .artist-item:hover, .artist-item:focus {
     transform: scale(1.1);
     filter: brightness(0.8);
     }
@@ -52,11 +52,11 @@
     transition: opacity 0.3s;
     }
 
-    .artist-item:hover .gradient-overlay, .artist-item:hover .artist-name {
+    .artist-item:hover .gradient-overlay, .artist-item:hover .artist-name, .artist-item:focus .gradient-overlay, .artist-item:focus .artist-name {
     opacity: 0.3;
     }
 
-    .artist-item:hover img {
+    .artist-item:hover img, .artist-item:focus img {
     filter: brightness(0.4);
     }
 
@@ -85,7 +85,7 @@
     z-index: 2;
     }
 
-    .artist-item:hover .buttons {
+    .artist-item:hover .buttons, .artist-item:focus .buttons {
     opacity: 1;
     }
 
@@ -125,12 +125,12 @@
 
     .add-artist-btn:hover, .add-artist-btn:focus {
     background-color: #6c757d !important;
-    transform: scale(1.1);
-    filter: brightness(1) !important;
+    transform: scale(1.2) !important;
+    filter: brightness(0.9) !important;
     }
 
     .artist-item:has(.add-artist-btn):hover img, .artist-item:has(.add-artist-btn):focus img {
-    filter: brightness(1);
+        filter: brightness(1);
     }
 </style>
 
@@ -140,7 +140,7 @@
     @if (isAdmin)
     {
         <div class="artist-item">
-            <button type="button" class="btn btn-secondary add-artist-btn d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#createArtistModal">
+            <button type="button" class="btn btn-secondary add-artist-btn transition d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#createArtistModal">
                 <img src="~/media/add_button.jpg" alt="admin add artist button" width="150" height="150" />
             </button>
         </div>
