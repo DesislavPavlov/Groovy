@@ -14,73 +14,83 @@
 <style>
     /* Top Section Background */
     .song-background {
-        background-color: @GetBackgroundGenreColor(Model.CurrentSong.Color);
-        height: 50vh;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
+    background-color: @GetBackgroundGenreColor(Model.CurrentSong.Color);
+    height: 50vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
     }
 
     /* Song & Waveform Section */
     .song-container {
-        position: relative;
-        z-index: 1;
-        width: 100%;
+    position: relative;
+    z-index: 1;
+    width: 100%;
     }
 
     /* Waveform Placeholder */
     .waveform-container {
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
     }
 
     /* Song Info */
     .song-info {
-        text-align: center;
-        color: white;
+    text-align: center;
+    color: white;
     }
 
     .song-info img {
-        width: 150px;
-        height: 150px;
-        border-radius: 10px;
-        object-fit: cover;
-        margin-bottom: 10px;
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
     }
 
     .play-button {
-        margin-top: 10px;
+    margin-top: 10px;
     }
 
     /* Responsive */
     @@media (max-width: 768px) {
-        .song-background {
-            height: 60vh;
-            flex-direction: column;
-        }
+    .song-background {
+    height: 60vh;
+    flex-direction: column;
+    }
 
-        .waveform-container {
-            margin-bottom: 15px;
-        }
+    .waveform-container {
+    margin-bottom: 15px;
+    }
     }
 </style>
 
 <div class="container-fluid p-0">
     <div class="song-background d-flex flex-column flex-md-row align-items-center justify-content-center">
         <div class="song-container d-flex flex-column flex-md-row align-items-center justify-content-around w-100">
-            <div class="waveform-container col-md-6 p-3">
-                <canvas id="waveformCanvas" width="300" height="100"></canvas>
-            </div>
-
             <div class="song-info col-md-6 text-center">
                 <img src="@Model.CurrentSong?.CoverUrl" alt="Song Cover">
                 <h1 class="h3 fw-bold">@Model.CurrentSong?.Title</h1>
+
+                <p class="bg-light py-1 px-3 rounded-3 text-center mx-auto" style="width: fit-content;">
+                    <span class="text-orange">| </span>
+                    @foreach (Artist artist in Model.Artists)
+                    {
+                        <a asp-controller="Details" asp-action="ArtistDetails" asp-route-id="@artist.Id" class="text-orange text-decoration-none transition-color">@artist.Name <span class="text-orange"> | </span></a>
+                    }
+
+                    @foreach (Genre genre in Model.Genres)
+                    {
+                        <a asp-controller="Details" asp-action="GenreDetails" asp-route-id="@genre.Id" class="text-orange text-decoration-none transition-color">@genre.Name <span class="text-orange"> | </span></a>
+                    }
+                </p>
+
                 <button onclick="setAudioSource('@Model.CurrentSong.SongUrl', '@Model.CurrentSong.CoverUrl', '@Model.CurrentSong.Title', '@Model.CurrentSong.Color')" class="btn btn-orange mt-1"><i class="fa-solid fa-play"></i></button>
 
                 @if (!isGuest)

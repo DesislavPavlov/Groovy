@@ -37,11 +37,6 @@
         text-align: center;
     }
 
-    .d-flex {
-        flex-direction: column;
-        align-items: center;
-    }
-
     .genreArtists, .genreSongs {
         width: 90%; /* Take full width on mobile */
         margin-left: 0;
@@ -57,13 +52,13 @@
             <h2 class="fw-bold">@Model.Genre.Name</h2>
         </div>
     </div>
-    <div class="d-flex container gap-5 mt-5">
-        <div class="col-4">
+    <div class="d-flex justify-content-between container gap-5 mt-5 flex-column flex-lg-row">
+        <div class="col-lg-3">
             <p id="artistsOfGenreTitle" class="text-dark fs-3">Изпълнители 🎤:</p>
             @Html.Partial("_EntityList", Model.Artists)
         </div>
         <!-- Placeholder for Songs Section -->
-        <div class="col-8">
+        <div class="col-lg-8">
             <div>
                 @Html.Partial("_SongGrid", Model.Songs)
             </div>

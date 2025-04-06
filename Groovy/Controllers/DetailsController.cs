@@ -2,7 +2,6 @@
 using Groovy.Services;
 using Groovy.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel;
 
 namespace Groovy.Controllers
 {
@@ -47,6 +46,8 @@ namespace Groovy.Controllers
             {
                 UserId = userId,
                 CurrentSong = song,
+                Artists = await GetSongArtists(id),
+                Genres = await GetSongGenres(id),
                 RelatedSongs = await GetRelatedSongs(id),
                 RecommendedSongs = await GetRecommendedSongs(userId, song.Id),
                 FavouriteSongIds = favouriteSongs.Select(s => s.Id).ToList()
@@ -105,6 +106,16 @@ namespace Groovy.Controllers
             Song song = await _apiService.GetAsync<Song>($"songs/{songId}");
             return song;
         }
+        private async Task<List<Artist>> GetSongArtists(int songId)
+        {
+            List<Artist> artists = await _apiService.GetAsync<List<Artist>>($"songs/{songId}/artists");
+            return artists;
+        }
+        private async Task<List<Genre>> GetSongGenres(int songId)
+        {
+            List<Genre> genres = await _apiService.GetAsync<List<Genre>>($"songs/{songId}/genres");
+            return genres;
+        }
         private async Task<List<Song>> GetRecommendedSongs(int userId, int currentSongId)
         {
             List<Song> songs = await _apiService.GetAsync<List<Song>>($"songs/recommended?userId={userId}&currentSongId={currentSongId}");
@@ -159,7 +170,7 @@ namespace Groovy.Controllers
                 throw new ArgumentException("Artist not found");
             }
             else
-            return artist;
+                return artist;
         }
         private async Task<List<Artist>> GetRelatedArtists(int id)
         {

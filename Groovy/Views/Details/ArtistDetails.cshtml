@@ -70,10 +70,6 @@
         h3 {
             font-size: 8vw;
         }
-        /* Stack the two sections */
-        .d-flex {
-            flex-direction: column;
-        }
 
         .relatedArtists, .artistSongs {
             width: 90%; /* Take full width on mobile */
@@ -139,15 +135,15 @@
     </div>
 
     <!-- Main Content -->
-    <div class="d-flex container gap-5 mt-5">
+    <div class="d-flex justify-content-between container gap-5 mt-5 flex-column flex-lg-row">
         <!-- Related Artists Section -->
-        <div class="relatedArtists col-3">
+        <div class="relatedArtists col-lg-3">
             <p id="relatedArtistsTitle" class="text-dark fs-3">Подобни артисти 🎤</p>
             @Html.Partial("_EntityList", Model.RelatedArtists)
         </div>
 
         <!-- Placeholder for Songs Section -->
-        <div class="col-8">
+        <div class="col-lg-8">
             <div>
                 @Html.Partial("_SongGrid", Model.Songs)
             </div>

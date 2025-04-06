@@ -478,7 +478,7 @@
             playPauseBtn.addEventListener("click", playPause);
             document.addEventListener("keydown", (e) => {
                 if (e.code === "Space" || e.key === " ") {
-                    e.preventDefault();
+                    // e.preventDefault();
                     playPause();
                 }
             });

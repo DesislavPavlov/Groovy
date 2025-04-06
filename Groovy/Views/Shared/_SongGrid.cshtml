@@ -15,7 +15,6 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 15px;
-        justify-items: center;
     }
 
     .song-item {
@@ -538,8 +537,8 @@
                     const createSongModalElem = document.getElementById('createSongModal');
                     const createSongModal = bootstrap.Modal.getInstance(createSongModalElem);
                     createSongModal.hide();
-
-                    location.reload();
+;
+                    window.location.href = "/";
                 })
                 .catch(error => {
                     console.error("Error:", error);
@@ -650,7 +649,7 @@
                     const editModal = bootstrap.Modal.getInstance(editSongModalElem);
                     editModal.hide();
 
-                    location.reload();
+                    window.location.href = "/";
                 })
                 .catch(error => {
                     console.error("Error:", error);
@@ -691,7 +690,7 @@
                     const deleteModal = bootstrap.Modal.getInstance(deleteModalElem);
                     deleteModal.hide();
 
-                    location.reload();
+                    window.location.href = "/";
                 })
                 .catch(error => {
                     console.error("Error:", error);

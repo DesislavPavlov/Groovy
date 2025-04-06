@@ -178,7 +178,7 @@ html {
     border-color: #1f509a !important;
 }
 
-.text-blue:hover, .text-blue:focus {
+.text-blue:is(a):hover, .text-blue:is(a):focus, .text-blue:is(button):hover, .text-blue:is(button):focus {
     color: #80a8e5 !important;
 }
 
