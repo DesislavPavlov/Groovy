@@ -1,4 +1,7 @@
-# Groovy - Audio Sharing Platform
+# Groovy 🎧 
+> *"Music washes away from the soul the dust of everyday life."*  
+> — **Berthold Auerbach**  
+
 *A modern audio-sharing platform inspired by SoundCloud, built with ASP.NET Core MVC.*  
 
 ![Groovy Banner](readme_resources/groovy_logo.png)  
@@ -16,7 +19,7 @@
 ---
 
 ## 🚀 Video Demo
-![Groovy Demo](readme resources/Groovy Showcase.gif)
+![Groovy Demo](readme_resources/Groovy_Showcase.gif)
 
 ---
 
@@ -31,8 +34,8 @@
 ## 📸 Screenshots
 
 | Login | Homepage | Songs Page | User Profile |  
-|----------|-------------|--------------|  
-| ![Home](path/to/home.png) | ![Player](path/to/player.png) | ![Profile](path/to/profile.png) |
+|-------|----------|------------|--------------| 
+| ![Login](readme_resources/Login_page.png) | ![Login](readme_resources/Home_page.png) | ![Login](readme_resources/Music_page.png) | ![Login](readme_resources/User_page.png) |
 
 ---
 
@@ -53,7 +56,7 @@ cd groovy
 ```csharp
 https://localhost:7021/api
 ```
-- You can change this in *Services/APIService.cs* by modifying:
+> You can change this in *Services/APIService.cs* by modifying:
 ```csharp
 private readonly string _apiBaseUrl = "https://localhost:7021/api";
 ```
